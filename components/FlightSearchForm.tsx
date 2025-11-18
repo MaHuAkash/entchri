@@ -19,16 +19,16 @@ interface FlightSearchParams {
 }
 
 interface FlightSearchFormProps {
-  onSearch: (params: FlightSearchParams) => void;
-  loading: boolean;
+  onSearch?: (params: FlightSearchParams) => void;
+  loading?: boolean;
 }
 
 const searchTypes = [
-  { value: 'cheap', label: 'Cheapest', icon: DollarSign, color: 'from-green-500 to-emerald-500' },
-  { value: 'direct', label: 'Direct', icon: MapPin, color: 'from-blue-500 to-cyan-500' },
-  { value: 'calendar', label: 'Calendar', icon: Calendar, color: 'from-purple-500 to-pink-500' },
-  { value: 'monthly', label: 'Monthly', icon: Calendar, color: 'from-orange-500 to-red-500' },
-  { value: 'latest', label: 'Latest', icon: Search, color: 'from-indigo-500 to-purple-500' },
+  { value: 'cheap', label: 'Cheapest', icon: DollarSign, color: 'from-green-500 to-emerald-500', apiType: 'prices/cheap' },
+  { value: 'direct', label: 'Direct', icon: MapPin, color: 'from-blue-500 to-cyan-500', apiType: 'prices/direct' },
+  { value: 'calendar', label: 'Calendar', icon: Calendar, color: 'from-purple-500 to-pink-500', apiType: 'prices/calendar' },
+  { value: 'monthly', label: 'Monthly', icon: Calendar, color: 'from-orange-500 to-red-500', apiType: 'prices/monthly' },
+  { value: 'latest', label: 'Latest', icon: Search, color: 'from-indigo-500 to-purple-500', apiType: 'latest' },
 ];
 
 const currencies = [
@@ -125,7 +125,7 @@ function CustomDropdown({ value, options, onChange, icon: Icon, placeholder, cla
   );
 }
 
-export default function FlightSearchForm({ onSearch, loading }: FlightSearchFormProps) {
+export default function FlightSearchForm({ onSearch, loading = false }: FlightSearchFormProps) {
   const [formData, setFormData] = useState<FlightSearchParams>({
     type: 'cheap',
     origin: '',
@@ -139,7 +139,131 @@ export default function FlightSearchForm({ onSearch, loading }: FlightSearchForm
     one_way: false,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
+  // Method 1: Direct TravelPayouts API call (for white-label)
+  const searchWithTravelPayoutsAPI = async (params: FlightSearchParams) => {
+    const TRAVELPAYOUTS_API_TOKEN = '7cb213f8d9e9dc82f24466bf0fd00318';
+    const TRAVELPAYOUTS_MARKER = '297036';
+    
+    const selectedSearchType = searchTypes.find(st => st.value === params.type);
+    const endpointType = selectedSearchType?.apiType || 'prices/cheap';
+    
+    // Build API URL
+    const baseUrl = `https://api.travelpayouts.com/aviasales/v3/${endpointType}`;
+    const queryParams = new URLSearchParams();
+    
+    // Add common parameters
+    queryParams.append('origin', params.origin);
+    if (params.destination) {
+      queryParams.append('destination', params.destination);
+    }
+    if (params.depart_date) {
+      queryParams.append('depart_date', params.depart_date);
+    }
+    if (params.return_date && !params.one_way) {
+      queryParams.append('return_date', params.return_date);
+    }
+    queryParams.append('currency', params.currency);
+    queryParams.append('trip_class', params.trip_class?.toString() || '0');
+    queryParams.append('limit', params.limit?.toString() || '50');
+    
+    const apiUrl = `${baseUrl}?${queryParams.toString()}`;
+    
+    try {
+      const response = await fetch(apiUrl, {
+        headers: {
+          'X-Access-Token': TRAVELPAYOUTS_API_TOKEN
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('TravelPayouts API error:', error);
+      throw error;
+    }
+  };
+
+  // Method 2: Redirect to Aviasales with affiliate link
+  const redirectToAviasales = (params: FlightSearchParams) => {
+    const TRAVELPAYOUTS_MARKER = '297036';
+    
+    const baseUrl = 'https://aviasales.com';
+    const searchParams = new URLSearchParams();
+    
+    // Required parameters
+    searchParams.append('origin', params.origin);
+    if (params.destination) {
+      searchParams.append('destination', params.destination);
+    }
+    
+    // Dates
+    if (params.depart_date) {
+      searchParams.append('depart_date', params.depart_date);
+    }
+    if (!params.one_way && params.return_date) {
+      searchParams.append('return_date', params.return_date);
+    }
+    
+    // Trip class and type
+    searchParams.append('trip_class', params.trip_class?.toString() || '0');
+    
+    // One-way flag
+    if (params.one_way) {
+      searchParams.append('one_way', 'true');
+    }
+    
+    // Currency
+    searchParams.append('currency', params.currency);
+    
+    // Add TravelPayouts affiliate marker
+    searchParams.append('marker', TRAVELPAYOUTS_MARKER);
+    
+    // Add additional parameters for better tracking
+    searchParams.append('with_request', 'true');
+    searchParams.append('locale', 'en');
+    
+    const url = `${baseUrl}/search?${searchParams.toString()}`;
+    
+    // Open in new tab
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  // Method 3: Get flight data and then redirect to booking
+  const handleSearchAndRedirect = async (params: FlightSearchParams) => {
+    setIsRedirecting(true);
+    
+    try {
+      // Option A: Use TravelPayouts API to get flight data first
+      const flightData = await searchWithTravelPayoutsAPI(params);
+      
+      // Then redirect to the best deal or show results
+      if (flightData && flightData.data && flightData.data.length > 0) {
+        // Find the best deal (cheapest flight)
+        const bestDeal = flightData.data.sort((a: any, b: any) => a.value - b.value)[0];
+        
+        // Redirect to booking page for this flight
+        const bookingUrl = `https://aviasales.com${bestDeal.link}?marker=297036`;
+        window.open(bookingUrl, '_blank', 'noopener,noreferrer');
+      } else {
+        // Fallback to direct Aviasales search
+        redirectToAviasales(params);
+      }
+    } catch (error) {
+      // Fallback to direct Aviasales search if API fails
+      console.error('API search failed, falling back to direct redirect:', error);
+      redirectToAviasales(params);
+    } finally {
+      setIsRedirecting(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (formData.origin && !/^[A-Za-z]{3}$/.test(formData.origin)) {
@@ -152,7 +276,18 @@ export default function FlightSearchForm({ onSearch, loading }: FlightSearchForm
       return;
     }
 
-    onSearch(formData);
+    // Choose your preferred method:
+    
+    // Method 1: Direct redirect (simpler)
+    // redirectToAviasales(formData);
+    
+    // Method 2: API search then redirect (better for white-label)
+    await handleSearchAndRedirect(formData);
+    
+    // Optional: Call the original onSearch callback if provided
+    if (onSearch) {
+      onSearch(formData);
+    }
   };
 
   const swapLocations = () => {
@@ -174,6 +309,8 @@ export default function FlightSearchForm({ onSearch, loading }: FlightSearchForm
     const newDate = baseDate.toISOString().split('T')[0];
     setFormData(prev => ({ ...prev, depart_date: newDate }));
   };
+
+  const currentLoading = loading || isRedirecting;
 
   return (
     <motion.div
@@ -356,15 +493,17 @@ export default function FlightSearchForm({ onSearch, loading }: FlightSearchForm
               <div className="flex items-end">
                 <button
                   type="submit"
-                  disabled={loading || !formData.origin}
+                  disabled={currentLoading || !formData.origin}
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg font-medium text-xs sm:text-sm disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center shadow-sm min-h-[42px] border-2 border-transparent hover:border-blue-800"
                 >
-                  {loading ? (
+                  {currentLoading ? (
                     <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1.5"></div>
                   ) : (
                     <Search className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1.5 flex-shrink-0" />
                   )}
-                  <span className="truncate">{loading ? '...' : 'Search'}</span>
+                  <span className="truncate">
+                    {currentLoading ? 'Redirecting...' : 'Search Flights'}
+                  </span>
                 </button>
               </div>
             </div>
@@ -403,6 +542,11 @@ export default function FlightSearchForm({ onSearch, loading }: FlightSearchForm
             <Plane className="h-3 w-3 mr-1 flex-shrink-0" />
             <span className="truncate">Enter 3-letter IATA codes</span>
           </div>
+        </div>
+
+        {/* White Label Info */}
+        <div className="text-xs text-gray-500 text-center pt-2 border-t border-gray-200">
+          <p>Powered by TravelPayouts • Affiliate ID: 297036</p>
         </div>
       </form>
     </motion.div>

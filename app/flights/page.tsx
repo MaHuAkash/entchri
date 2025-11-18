@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Plane, Calendar, MapPin } from 'lucide-react';
 import FlightSearchForm from '@/components/FlightSearchForm';
-import FlightResults from '@/components/FlightResults';
 
 interface FlightSearchParams {
   type: string;
@@ -77,11 +76,7 @@ export default function FlightsPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
             >
-              <FlightResults 
-                results={results} 
-                searchParams={searchParams}
-                loading={loading}
-              />
+            
             </motion.div>
           )}
         </AnimatePresence>
