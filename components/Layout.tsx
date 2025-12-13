@@ -85,7 +85,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </motion.div>
               </div>
               <div className="flex flex-col">
-                <span className="text-2xl font-bold text-gray-900">Travelix</span>
+                <span className="text-2xl font-bold text-gray-900">TravelikeG</span>
                 <div className="h-0.5 w-full bg-gradient-to-r from-blue-600 to-transparent" />
               </div>
             </Link>
