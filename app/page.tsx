@@ -1,643 +1,869 @@
+// app/hotels/page.tsx
 'use client';
 
-import Link from 'next/link';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Search, Shield, Globe, TrendingUp, Plane, Car, Hotel, Star, CheckCircle } from 'lucide-react';
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Hotel, Sparkles, Shield, Zap, TrendingUp, Globe, CheckCircle, Star, Award, CreditCard, Clock, MapPin, Users, Heart, Building, Bed, Wifi, Coffee, Car, Umbrella, Waves, Sun, Moon, Search, Filter, Calendar, ChevronRight } from 'lucide-react';
+import HotelSearchForm from '@/components/HotelSearchForm';
 
-// Modern Hero Container
-const HeroHighlight = ({ children }: { children: React.ReactNode }) => (
-<div className="relative w-full min-h-[100vh] bg-gradient-to-br from-slate-50 via-white to-blue-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950/30 overflow-hidden pt-20">    {/* Premium Background Elements */}
-    <div className="pt-9">
-    <div className="absolute inset-0">
-      {/* Subtle Grid */}
-      <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.03] bg-[linear-gradient(rgba(0,0,0,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.1)_1px,transparent_1px)] bg-[size:60px_60px]" />
-      
-      {/* Floating Orbs */}
-      <motion.div
-        className="absolute top-20 left-10 w-48 h-48 bg-blue-200/20 rounded-full blur-3xl"
-        animate={{
-          y: [0, -40, 0],
-          opacity: [0.3, 0.5, 0.3],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      />
-      <motion.div
-        className="absolute bottom-20 right-10 w-32 h-32 bg-purple-200/15 rounded-full blur-2xl"
-        animate={{
-          y: [0, 30, 0],
-          opacity: [0.2, 0.4, 0.2],
-        }}
-        transition={{
-          duration: 6,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 2
-        }}
-      />
-    </div>
+export default function HotelsPage() {
+  const [searchCount, setSearchCount] = useState(1842973);
+  const [activeHotel, setActiveHotel] = useState(1);
+  const [timeOfDay, setTimeOfDay] = useState<'day' | 'night'>('day');
 
-    {/* Content Container */}
-    <div className="relative z-10 container mx-auto px-4 h-full flex items-center justify-center">
-      {children}
-    </div>
-    </div>
-  </div>
-);
-
-const features = [
-  {
-    name: 'Smart Search',
-    description: 'Find the best flight deals across multiple airlines and booking platforms.',
-    icon: Search,
-  },
-  {
-    name: 'Safe & Secure',
-    description: 'Your data is protected with industry-standard security measures.',
-    icon: Shield,
-  },
-  {
-    name: 'Global Coverage',
-    description: 'Access flight data from thousands of destinations worldwide.',
-    icon: Globe,
-  },
-  {
-    name: 'Real-time Prices',
-    description: 'Get up-to-date pricing information from reliable sources.',
-    icon: TrendingUp,
-  },
-];
-
-export default function Home() {
-  const [currentText, setCurrentText] = useState(0);
-  const [isMounted, setIsMounted] = useState(false);
-  
-  const services = [
-    { 
-      type: "Flights", 
-      icon: Plane, 
-      gradient: "from-blue-500 to-cyan-500",
-      description: "Best deals on domestic & international flights"
-    },
-    { 
-      type: "Hotels", 
-      icon: Hotel, 
-      gradient: "from-emerald-500 to-teal-500",
-      description: "Luxury stays at unbeatable prices"
-    },
-    { 
-      type: "Car Rentals", 
-      icon: Car, 
-      gradient: "from-orange-500 to-red-500",
-      description: "Premium vehicles for every journey"
-    },
-    { 
-      type: "All-in-One", 
-      icon: Star, 
-      gradient: "from-purple-500 to-pink-500",
-      description: "Complete travel packages"
-    },
-  ];
-
+  // Animate search count
   useEffect(() => {
-    setIsMounted(true);
-    const interval = setInterval(() => {
-      setCurrentText((prev) => (prev + 1) % services.length);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [services.length]);
+    const timer = setInterval(() => {
+      setSearchCount(prev => prev + Math.floor(Math.random() * 8));
+    }, 2000);
+    
+    // Simulate time of day changes
+    const timeTimer = setInterval(() => {
+      setTimeOfDay(prev => prev === 'day' ? 'night' : 'day');
+    }, 15000);
+    
+    return () => {
+      clearInterval(timer);
+      clearInterval(timeTimer);
+    };
+  }, []);
 
   return (
-    <div className="relative">
-      <HeroHighlight>
-        <div className="w-full max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left Content - Text */}
+    <div className={`min-h-screen transition-all duration-1000 ${
+      timeOfDay === 'day' 
+        ? 'bg-gradient-to-b from-blue-50 via-amber-50 to-white' 
+        : 'bg-gradient-to-b from-blue-900 via-indigo-900 to-gray-900'
+    }`}>
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        {timeOfDay === 'day' ? (
+          <>
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-left"
-            >
-              {/* Main Heading */}
-              <motion.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-                className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-6 leading-tight"
-              >
-                Your Perfect
-                <br />
-                <div className="h-20 lg:h-24 flex items-center my-4">
-                  <AnimatePresence mode="wait">
-                    <motion.span
-                      key={currentText}
-                      initial={{ opacity: 0, y: 50 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -50 }}
-                      transition={{ duration: 0.5, ease: "easeInOut" }}
-                      className={`bg-gradient-to-r ${services[currentText].gradient} bg-clip-text text-transparent`}
-                    >
-                      {services[currentText].type}
-                    </motion.span>
-                  </AnimatePresence>
-                </div>
-                Experience Awaits
-              </motion.h1>
+              animate={{ 
+                x: [0, 100, 0],
+                y: [0, 50, 0]
+              }}
+              transition={{ duration: 25, repeat: Infinity }}
+              className="absolute top-1/3 left-1/4 w-64 h-64 bg-amber-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20"
+            />
+            <motion.div
+              animate={{ 
+                x: [0, -80, 0],
+                y: [0, -30, 0]
+              }}
+              transition={{ duration: 30, repeat: Infinity }}
+              className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-15"
+            />
+          </>
+        ) : (
+          <>
+            <motion.div
+              animate={{ 
+                x: [0, 100, 0],
+                y: [0, 50, 0]
+              }}
+              transition={{ duration: 30, repeat: Infinity }}
+              className="absolute top-1/3 left-1/4 w-64 h-64 bg-indigo-800 rounded-full mix-blend-multiply filter blur-3xl opacity-10"
+            />
+            <div className="absolute top-1/4 right-1/4 flex items-center justify-center">
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  animate={{ 
+                    opacity: [0.3, 0.7, 0.3],
+                    scale: [0.9, 1.1, 0.9]
+                  }}
+                  transition={{ 
+                    duration: 3 + i,
+                    repeat: Infinity,
+                    delay: i * 0.5 
+                  }}
+                  className="w-1 h-1 bg-white rounded-full mx-1"
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
 
-              {/* Description */}
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-8 leading-relaxed max-w-lg"
-              >
-                Discover the world with confidence. All your travel needs in one place - 
-                seamless, secure, and unforgettable.
-              </motion.p>
-
-              {/* Features List */}
+      {/* Main Container */}
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+        
+        {/* Floating Stats Badge */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="fixed top-24 right-4 sm:right-8 z-40 bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl shadow-xl p-4 hidden lg:block"
+        >
+          <div className="flex items-center gap-3">
+            <div className="relative">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-3"
-              >
-                {[
-                  "No hidden fees",
-                  "24/7 customer support",
-                  "Best price guarantee",
-                  "Instant confirmation"
-                ].map((feature, index) => (
-                  <div key={feature} className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                    <span className="text-slate-700 dark:text-slate-300 text-sm font-medium">
-                      {feature}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                className="w-10 h-10 rounded-full border-2 border-blue-200 border-t-blue-600"
+              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Users className="h-5 w-5 text-blue-600" />
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">Travelers Today</div>
+              <div className="text-lg font-bold text-blue-600">
+                {searchCount.toLocaleString()}
+              </div>
+              <div className="text-xs text-green-600 flex items-center">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                +347 now searching
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Hero Section - Enhanced */}
+        <div className="mb-16 sm:mb-20 relative">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-10"
+          >
+            {/* Animated Badge with Time Awareness */}
+            <motion.div
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className={`inline-flex items-center gap-2 px-5 py-2 rounded-full mb-6 shadow-lg ${
+                timeOfDay === 'day'
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
+                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white'
+              }`}
+            >
+              {timeOfDay === 'day' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              <span className="text-sm font-semibold">
+                {timeOfDay === 'day' ? '☀️ Perfect Day to Book!' : '🌙 Exclusive Night Deals!'}
+              </span>
+            </motion.div>
+            
+            {/* Main Heading with Animated Gradient */}
+            <motion.h1
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4"
+            >
+              <span className={`block ${timeOfDay === 'day' ? 'text-gray-900' : 'text-white'}`}>
+                Find Your
+              </span>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500 block">
+                Perfect Escape
+              </span>
+            </motion.h1>
+            
+            {/* Animated Subtitle */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className={`text-lg max-w-2xl mx-auto mb-8 ${
+                timeOfDay === 'day' ? 'text-gray-600' : 'text-blue-100'
+              }`}
+            >
+              Millions of dream stays. One{" "}
+              <span className="font-bold text-blue-500">perfect match</span>.
+            </motion.p>
+
+            {/* Live Stats */}
+            <div className="flex flex-wrap justify-center gap-8 mb-8">
+              {[
+                { value: "4.8★", label: "Avg. Rating", icon: Star },
+                { value: "28M+", label: "Properties", icon: Building },
+                { value: "98%", label: "Satisfaction", icon: Heart },
+                { value: "24/7", label: "Support", icon: Clock },
+              ].map((stat, index) => {
+                const Icon = stat.icon;
+                return (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1 * index }}
+                    className="text-center"
+                  >
+                    <div className={`text-2xl font-bold flex items-center justify-center gap-1 ${
+                      timeOfDay === 'day' ? 'text-blue-600' : 'text-white'
+                    }`}>
+                      <Icon className="h-5 w-5" />
+                      {stat.value}
+                    </div>
+                    <div className={`text-sm ${
+                      timeOfDay === 'day' ? 'text-gray-500' : 'text-blue-200'
+                    }`}>
+                      {stat.label}
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          {/* Enhanced Search Form Container */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.7 }}
+            className="relative"
+          >
+            {/* Floating Search Form */}
+            <div className={`rounded-3xl shadow-2xl relative overflow-hidden ${
+              timeOfDay === 'day'
+                ? 'bg-gradient-to-br from-white to-blue-50 border border-blue-100'
+                : 'bg-gradient-to-br from-gray-800 to-blue-900/50 border border-blue-800/30'
+            }`}>
+              {/* Decorative Elements */}
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
+                className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-full"
+              />
+              
+              <div className="p-6 sm:p-8 relative">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className={`p-2 rounded-lg ${
+                    timeOfDay === 'day' ? 'bg-blue-100' : 'bg-blue-900/50'
+                  }`}>
+                    <Search className="h-6 w-6 text-blue-500" />
+                  </div>
+                  <h2 className={`text-xl font-bold ${
+                    timeOfDay === 'day' ? 'text-gray-900' : 'text-white'
+                  }`}>
+                    Where Will You Stay Tonight?
+                  </h2>
+                </div>
+                
+                <HotelSearchForm />
+                
+                {/* Quick Filters */}
+                <div className="mt-8 pt-6 border-t border-blue-100/30">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Filter className={`h-4 w-4 ${
+                      timeOfDay === 'day' ? 'text-blue-600' : 'text-blue-300'
+                    }`} />
+                    <span className={`text-sm font-medium ${
+                      timeOfDay === 'day' ? 'text-gray-700' : 'text-blue-100'
+                    }`}>
+                      Popular Filters:
                     </span>
                   </div>
-                ))}
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { label: "⭐⭐⭐⭐⭐", bg: "bg-amber-100 text-amber-800" },
+                      { label: "🏖️ Beachfront", bg: "bg-cyan-100 text-cyan-800" },
+                      { label: "💳 Free Cancellation", bg: "bg-green-100 text-green-800" },
+                      { label: "🍳 Free Breakfast", bg: "bg-orange-100 text-orange-800" },
+                      { label: "🏊 Pool", bg: "bg-blue-100 text-blue-800" },
+                      { label: "🅿️ Free Parking", bg: "bg-purple-100 text-purple-800" },
+                    ].map((filter) => (
+                      <button
+                        key={filter.label}
+                        className={`px-3 py-1.5 ${filter.bg} text-sm font-medium rounded-full hover:shadow-md transition-all`}
+                      >
+                        {filter.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Premium Features Showcase */}
+        <div className="mb-16">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+            className="text-center mb-10"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full mb-4">
+              <Sparkles className="h-4 w-4" />
+              <span className="text-sm font-semibold">✨ WHY TRAVELIKEG? ✨</span>
+            </div>
+            <h2 className={`text-2xl sm:text-3xl font-bold mb-3 ${
+              timeOfDay === 'day' ? 'text-gray-900' : 'text-white'
+            }`}>
+              More Than Just a{" "}
+              <span className="text-blue-500">Booking Site</span>
+            </h2>
+            <p className={`max-w-xl mx-auto ${
+              timeOfDay === 'day' ? 'text-gray-600' : 'text-blue-200'
+            }`}>
+              We're your personal hotel concierge, powered by AI and human expertise
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                icon: Shield,
+                title: "Price Drop Protection™",
+                description: "We'll refund the difference if prices drop after booking",
+                color: "from-green-500 to-emerald-500",
+                stat: "Avg. $127 saved"
+              },
+              {
+                icon: Zap,
+                title: "Instant Booking",
+                description: "Confirmed reservations in under 30 seconds",
+                color: "from-blue-500 to-cyan-500",
+                stat: "99.7% success rate"
+              },
+              {
+                icon: Award,
+                title: "Exclusive Member Deals",
+                description: "Access to prices lower than anywhere else online",
+                color: "from-purple-500 to-pink-500",
+                stat: "Members save 32%"
+              },
+              {
+                icon: Globe,
+                title: "Global Coverage",
+                description: "Every hotel, everywhere. Even the hidden gems",
+                color: "from-amber-500 to-orange-500",
+                stat: "192 countries"
+              },
+              {
+                icon: Users,
+                title: "Dedicated Support",
+                description: "Real humans available 24/7 for any questions",
+                color: "from-red-500 to-rose-500",
+                stat: "4.9★ support rating"
+              },
+              {
+                icon: CreditCard,
+                title: "Flexible Payment",
+                description: "Pay now, pay later, or split payment options",
+                color: "from-indigo-500 to-blue-500",
+                stat: "12 payment methods"
+              },
+            ].map((feature, index) => (
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                viewport={{ once: true }}
+                whileHover={{ y: -5, scale: 1.02 }}
+                className={`rounded-2xl p-6 shadow-xl border ${
+                  timeOfDay === 'day'
+                    ? 'bg-white border-gray-200'
+                    : 'bg-gray-800/50 border-gray-700'
+                }`}
+              >
+                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4`}>
+                  <feature.icon className="h-7 w-7 text-white" />
+                </div>
+                <h3 className={`font-bold text-lg mb-2 ${
+                  timeOfDay === 'day' ? 'text-gray-900' : 'text-white'
+                }`}>
+                  {feature.title}
+                </h3>
+                <p className={`text-sm mb-4 ${
+                  timeOfDay === 'day' ? 'text-gray-600' : 'text-gray-300'
+                }`}>
+                  {feature.description}
+                </p>
+                <div className={`px-3 py-1 rounded-full text-xs font-bold inline-block ${
+                  timeOfDay === 'day'
+                    ? 'bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-700 border border-blue-200'
+                    : 'bg-gradient-to-r from-blue-900/30 to-cyan-900/30 text-blue-300 border border-blue-700/30'
+                }`}>
+                  {feature.stat}
+                </div>
               </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Interactive Hotel Showcase */}
+        <div className="mb-16">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+            className="text-center mb-10"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full mb-4">
+              <TrendingUp className="h-4 w-4" />
+              <span className="text-sm font-semibold">🔥 TRENDING NOW 🔥</span>
+            </div>
+            <h2 className={`text-2xl sm:text-3xl font-bold mb-3 ${
+              timeOfDay === 'day' ? 'text-gray-900' : 'text-white'
+            }`}>
+              Hotels People Are{" "}
+              <span className="text-blue-500">Loving Right Now</span>
+            </h2>
+            <p className={`max-w-xl mx-auto ${
+              timeOfDay === 'day' ? 'text-gray-600' : 'text-blue-200'
+            }`}>
+              These properties are booking fast! Don't miss out on these gems
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Featured Hotel */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              whileHover={{ scale: 1.01 }}
+              className={`rounded-3xl overflow-hidden shadow-2xl ${
+                timeOfDay === 'day'
+                  ? 'bg-gradient-to-br from-white to-blue-50 border border-blue-100'
+                  : 'bg-gradient-to-br from-gray-800 to-blue-900/30 border border-blue-800/30'
+              }`}
+            >
+              <div className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="flex">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="h-4 w-4 text-amber-500 fill-amber-500" />
+                        ))}
+                      </div>
+                      <span className={`text-sm font-bold ${
+                        timeOfDay === 'day' ? 'text-gray-700' : 'text-white'
+                      }`}>
+                        4.9 ★ Luxury Collection
+                      </span>
+                    </div>
+                    <h3 className={`text-xl font-bold mb-2 ${
+                      timeOfDay === 'day' ? 'text-gray-900' : 'text-white'
+                    }`}>
+                      The Grand Horizon Resort & Spa
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <MapPin className={`h-4 w-4 ${
+                        timeOfDay === 'day' ? 'text-blue-500' : 'text-blue-300'
+                      }`} />
+                      <span className={`text-sm ${
+                        timeOfDay === 'day' ? 'text-gray-600' : 'text-blue-200'
+                      }`}>
+                        Santorini, Greece • Beachfront
+                      </span>
+                    </div>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-white"
+                  >
+                    <Heart className="h-5 w-5" />
+                  </motion.button>
+                </div>
+
+                {/* Amenities */}
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {[
+                    { icon: Wifi, label: "Free WiFi" },
+                    { icon: Coffee, label: "Breakfast" },
+                    { icon: Car, label: "Parking" },
+                    { icon: Umbrella, label: "Pool" },
+                    { icon: Waves, label: "Spa" },
+                  ].map((amenity, index) => (
+                    <div
+                      key={index}
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-full ${
+                        timeOfDay === 'day'
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'bg-blue-900/30 text-blue-300'
+                      }`}
+                    >
+                      <amenity.icon className="h-3.5 w-3.5" />
+                      <span className="text-xs">{amenity.label}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Pricing */}
+                <div className="flex items-center justify-between pt-6 border-t border-gray-200/30">
+                  <div>
+                    <div className={`text-sm ${
+                      timeOfDay === 'day' ? 'text-gray-500' : 'text-blue-300'
+                    }`}>
+                      Per night
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className={`text-3xl font-bold ${
+                        timeOfDay === 'day' ? 'text-blue-600' : 'text-white'
+                      }`}>
+                        $299
+                      </span>
+                      <span className={`line-through ${
+                        timeOfDay === 'day' ? 'text-gray-400' : 'text-gray-500'
+                      }`}>
+                        $450
+                      </span>
+                      <span className="px-2 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold rounded">
+                        33% OFF
+                      </span>
+                    </div>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold rounded-full shadow-lg"
+                  >
+                    Book Now
+                  </motion.button>
+                </div>
+
+                {/* Limited Offer */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1 }}
+                  className="mt-4 p-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-amber-600" />
+                      <span className="text-sm font-bold text-amber-700">
+                        Limited offer! Only 2 rooms left at this price
+                      </span>
+                    </div>
+                    <span className="text-xs font-bold text-amber-600">
+                      4h 12m left
+                    </span>
+                  </div>
+                </motion.div>
+              </div>
             </motion.div>
 
-            {/* Right Content - Visual */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="relative"
-            >
-              {/* Main Service Card */}
-              <motion.div
-                key={currentText}
-                initial={{ opacity: 0, scale: 0.9, rotateY: 10 }}
-                animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-                transition={{ duration: 0.6 }}
-                className="relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-slate-200/50 dark:border-slate-700/50"
-              >
-                {/* Service Icon */}
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${services[currentText].gradient} flex items-center justify-center shadow-lg mb-6`}
-                >
-                  {(() => {
-                    const IconComponent = services[currentText].icon;
-                    return <IconComponent className="w-10 h-10 text-white" />;
-                  })()}
-                </motion.div>
-
-                {/* Service Content */}
-                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">
-                  {services[currentText].type}
-                </h3>
-                <p className="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
-                  {services[currentText].description}
-                </p>
-
-                {/* Stats */}
-                <div className="grid grid-cols-3 gap-4 pt-6 border-t border-slate-200/50 dark:border-slate-700/50">
-                  {[
-                    { value: "2M+", label: "Options" },
-                    { value: "150+", label: "Countries" },
-                    { value: "4.9★", label: "Rating" }
-                  ].map((stat, index) => (
-                    <div key={stat.label} className="text-center">
-                      <div className="text-lg font-bold text-slate-900 dark:text-white">
-                        {stat.value}
+            {/* Popular Locations */}
+            <div>
+              <h3 className={`text-xl font-bold mb-6 ${
+                timeOfDay === 'day' ? 'text-gray-900' : 'text-white'
+              }`}>
+                Popular Destinations
+              </h3>
+              <div className="space-y-4">
+                {[
+                  { city: "Bali, Indonesia", hotels: "12,450", price: "$89", trend: "+42%" },
+                  { city: "Paris, France", hotels: "8,920", price: "$145", trend: "+28%" },
+                  { city: "Tokyo, Japan", hotels: "7,310", price: "$112", trend: "+56%" },
+                  { city: "Dubai, UAE", hotels: "5,890", price: "$198", trend: "+34%" },
+                  { city: "New York, USA", hotels: "15,230", price: "$210", trend: "+19%" },
+                ].map((location, index) => (
+                  <motion.div
+                    key={location.city}
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                    onClick={() => setActiveHotel(index)}
+                    className={`p-4 rounded-2xl cursor-pointer transition-all ${
+                      activeHotel === index
+                        ? timeOfDay === 'day'
+                          ? 'bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200'
+                          : 'bg-gradient-to-r from-blue-900/30 to-cyan-900/30 border-2 border-blue-700'
+                        : timeOfDay === 'day'
+                          ? 'bg-white border border-gray-200 hover:border-blue-300'
+                          : 'bg-gray-800/50 border border-gray-700 hover:border-blue-700'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <MapPin className={`h-4 w-4 ${
+                            timeOfDay === 'day' ? 'text-blue-500' : 'text-blue-300'
+                          }`} />
+                          <span className={`font-bold ${
+                            timeOfDay === 'day' ? 'text-gray-900' : 'text-white'
+                          }`}>
+                            {location.city}
+                          </span>
+                        </div>
+                        <div className={`text-sm mt-1 ${
+                          timeOfDay === 'day' ? 'text-gray-600' : 'text-gray-300'
+                        }`}>
+                          {location.hotels} hotels • Avg. {location.price}/night
+                        </div>
                       </div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                        {stat.label}
+                      <div className="text-right">
+                        <div className={`text-sm font-bold ${
+                          location.trend.startsWith('+')
+                            ? 'text-green-600'
+                            : 'text-red-600'
+                        }`}>
+                          {location.trend}
+                        </div>
+                        <div className={`text-xs ${
+                          timeOfDay === 'day' ? 'text-gray-500' : 'text-gray-400'
+                        }`}>
+                          Trending
+                        </div>
+                      </div>
+                    </div>
+                    {activeHotel === index && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="mt-4 pt-4 border-t border-gray-200/30"
+                      >
+                        <div className="flex items-center justify-between text-sm">
+                          <span className={timeOfDay === 'day' ? 'text-gray-600' : 'text-gray-300'}>
+                            Best deals from:
+                          </span>
+                          <div className="flex gap-2">
+                            {["Booking.com", "Expedia", "Hotels.com"].map((source) => (
+                              <span
+                                key={source}
+                                className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded"
+                              >
+                                {source}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Trust & Security Section */}
+        <div className="mb-16">
+          <div className={`rounded-3xl p-8 shadow-2xl ${
+            timeOfDay === 'day'
+              ? 'bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100'
+              : 'bg-gradient-to-br from-gray-800 to-blue-900/30 border border-blue-800/30'
+          }`}>
+            <div className="grid lg:grid-cols-2 gap-8 items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full mb-6">
+                  <Shield className="h-4 w-4" />
+                  <span className="text-sm font-semibold">🛡️ 100% SAFE BOOKING</span>
+                </div>
+                <h2 className={`text-2xl sm:text-3xl font-bold mb-4 ${
+                  timeOfDay === 'day' ? 'text-gray-900' : 'text-white'
+                }`}>
+                  Your Security is Our{" "}
+                  <span className="text-blue-500">Top Priority</span>
+                </h2>
+                <div className="space-y-4">
+                  {[
+                    "🔒 256-bit SSL encryption on all transactions",
+                    "🛡️ Your payment details are never stored on our servers",
+                    "✅ Verified hotel partners with 5+ year track records",
+                    "📞 24/7 fraud monitoring and immediate support",
+                    "💳 Chargeback protection for all bookings",
+                  ].map((point, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                      className="flex items-start gap-3"
+                    >
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        timeOfDay === 'day'
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-green-900/30 text-green-400'
+                      }`}>
+                        <CheckCircle className="h-3 w-3" />
+                      </div>
+                      <span className={timeOfDay === 'day' ? 'text-gray-700' : 'text-gray-300'}>
+                        {point}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+              
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                className={`rounded-2xl p-6 text-center border ${
+                  timeOfDay === 'day'
+                    ? 'bg-white border-gray-200'
+                    : 'bg-gray-800 border-gray-700'
+                }`}
+              >
+                <div className="text-4xl font-bold mb-2 text-blue-500">
+                  4.9/5
+                </div>
+                <div className="flex items-center justify-center gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="h-5 w-5 text-amber-500 fill-amber-500" />
+                  ))}
+                </div>
+                <h3 className={`font-bold text-lg mb-2 ${
+                  timeOfDay === 'day' ? 'text-gray-900' : 'text-white'
+                }`}>
+                  TrustScore Rating
+                </h3>
+                <p className={`text-sm mb-6 ${
+                  timeOfDay === 'day' ? 'text-gray-600' : 'text-gray-300'
+                }`}>
+                  Based on 2.4 million verified customer reviews
+                </p>
+                
+                <div className="space-y-3">
+                  {[
+                    { label: "Booking Experience", value: 95, color: "from-green-400 to-emerald-500" },
+                    { label: "Price Accuracy", value: 98, color: "from-blue-400 to-cyan-500" },
+                    { label: "Customer Support", value: 94, color: "from-purple-400 to-pink-500" },
+                  ].map((stat, index) => (
+                    <div key={index} className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span className={timeOfDay === 'day' ? 'text-gray-700' : 'text-gray-300'}>
+                          {stat.label}
+                        </span>
+                        <span className="font-bold text-blue-500">{stat.value}%</span>
+                      </div>
+                      <div className={`h-2 rounded-full overflow-hidden ${
+                        timeOfDay === 'day' ? 'bg-gray-200' : 'bg-gray-700'
+                      }`}>
+                        <motion.div
+                          initial={{ width: 0 }}
+                          whileInView={{ width: `${stat.value}%` }}
+                          transition={{ delay: index * 0.1, duration: 1 }}
+                          viewport={{ once: true }}
+                          className={`h-full rounded-full bg-gradient-to-r ${stat.color}`}
+                        />
                       </div>
                     </div>
                   ))}
                 </div>
               </motion.div>
-
-              {/* Floating Elements */}
-              <motion.div
-                animate={{ y: [0, -15, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -top-4 -right-4 w-24 h-24 bg-blue-500/10 rounded-2xl backdrop-blur-sm border border-blue-500/20"
-              />
-              <motion.div
-                animate={{ y: [0, 15, 0] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                className="absolute -bottom-6 -left-6 w-20 h-20 bg-purple-500/10 rounded-2xl backdrop-blur-sm border border-purple-500/20"
-              />
-            </motion.div>
+            </div>
           </div>
         </div>
-      </HeroHighlight>
 
-
-
-
-{/* Features Section - Modern & Clean */}
-<section className="py-16 bg-white">
-  <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-    {/* Clean Header */}
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      viewport={{ once: true }}
-      className="text-center mb-12"
-    >
-      <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-        Why FlightFinder Stands Out
-      </h2>
-      <div className="w-16 h-1 bg-blue-500 mx-auto mb-6" />
-      <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-        Smart features designed for modern travelers who value efficiency and reliability.
-      </p>
-    </motion.div>
-
-    {/* Compact Features Grid */}
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {features.map((feature, index) => (
+        {/* Final CTA - Enhanced */}
         <motion.div
-          key={feature.name}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: index * 0.1 }}
           viewport={{ once: true }}
-          className="group"
+          className="mb-12"
         >
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-blue-100 transition-all duration-300 h-full">
-            {/* Simple Icon Container */}
+          <div className={`rounded-3xl p-8 text-center shadow-2xl relative overflow-hidden ${
+            timeOfDay === 'day'
+              ? 'bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-500'
+              : 'bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900'
+          }`}>
+            {/* Animated elements */}
             <motion.div
-              className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center mb-4 group-hover:bg-blue-500 transition-colors duration-300"
-              whileHover={{ scale: 1.05 }}
+              animate={{ y: [0, -20, 0] }}
+              transition={{ duration: 4, repeat: Infinity }}
+              className="absolute top-4 left-4 opacity-10"
             >
-              <feature.icon className="w-6 h-6 text-blue-600 group-hover:text-white transition-colors duration-300" />
+              <Hotel className="h-16 w-16 text-white" />
             </motion.div>
-
-            {/* Content */}
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">
-              {feature.name}
-            </h3>
-            
-            <p className="text-gray-600 text-sm leading-relaxed">
-              {feature.description}
-            </p>
-
-            {/* Simple Hover Indicator */}
             <motion.div
-              className="w-6 h-0.5 bg-blue-500 mt-4"
-              initial={{ width: 0 }}
-              whileInView={{ width: 24 }}
-              transition={{ delay: index * 0.1 + 0.3 }}
-              viewport={{ once: true }}
-            />
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  </div>
-</section>
-
-
-
-
-{/* Services Section - Dope 4-Column Design */}
-<section className="py-16 bg-white">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    {/* Clean Header */}
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      viewport={{ once: true }}
-      className="text-center mb-16"
-    >
-      <motion.div
-        initial={{ scale: 0 }}
-        whileInView={{ scale: 1 }}
-        transition={{ delay: 0.2, type: "spring" }}
-        viewport={{ once: true }}
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-200 mb-6"
-      >
-        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-        <span className="text-blue-600 font-medium text-sm">Our Services</span>
-      </motion.div>
-
-      <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-        Everything You Need
-      </h2>
-      <div className="w-20 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto mb-6" />
-      <p className="text-gray-600 max-w-2xl mx-auto">
-        Complete travel solutions in one place
-      </p>
-    </motion.div>
-
-    {/* 4-Column Services Grid */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      {services.map((service, index) => (
-        <motion.div
-          key={service.type}
-          initial={{ opacity: 0, y: 30, scale: 0.9 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ 
-            duration: 0.6, 
-            delay: index * 0.1,
-            type: "spring",
-            stiffness: 100
-          }}
-          viewport={{ once: true }}
-          className="group relative"
-        >
-          {/* Hover Glow Effect */}
-          <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} rounded-2xl opacity-0 group-hover:opacity-10 blur-xl transition-all duration-500`} />
-          
-          {/* Main Card */}
-          <div className="relative bg-white rounded-2xl p-6 border border-gray-200 group-hover:border-transparent group-hover:shadow-2xl group-hover:shadow-blue-500/10 transition-all duration-500 overflow-hidden">
-            
-            {/* Animated Background on Hover */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
-            
-            {/* Floating Icon */}
-            <motion.div
-              className={`relative z-10 w-14 h-14 rounded-2xl bg-gradient-to-br ${service.gradient} flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl`}
-              whileHover={{ 
-                scale: 1.1,
-                rotate: [0, -5, 5, 0],
-              }}
-              transition={{ 
-                scale: { duration: 0.2 },
-                rotate: { duration: 0.5 }
-              }}
+              animate={{ y: [0, 20, 0] }}
+              transition={{ duration: 5, repeat: Infinity, delay: 0.5 }}
+              className="absolute bottom-4 right-4 opacity-10"
             >
-              <service.icon className="w-7 h-7 text-white" />
-              
-              {/* Icon Shine Effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+              <Bed className="h-20 w-20 text-white" />
             </motion.div>
-
-            {/* Content */}
-            <div className="relative z-10 text-center">
-              <motion.h3
-                className="text-lg font-bold text-gray-900 mb-3 group-hover:text-gray-800 transition-colors duration-300"
-                whileHover={{ x: 2 }}
-              >
-                {service.type}
-              </motion.h3>
-              
-              <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                {service.description}
+            
+            <div className="relative">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
+                Your Dream Stay Awaits
+              </h2>
+              <p className="text-blue-100 text-lg mb-6 max-w-2xl mx-auto">
+                Join <span className="font-bold">2.4 million travelers</span> who found their perfect hotel with Travelikeg
               </p>
-
-              {/* Animated Button */}
-              <motion.div
-                className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 group-hover:text-blue-600 transition-colors duration-300"
-                whileHover={{ x: 3 }}
-              >
-                <span>Explore</span>
-                <motion.span
-                  animate={{ x: [0, 3, 0] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-3 bg-white text-blue-600 font-bold rounded-full text-lg shadow-lg hover:shadow-xl transition-shadow"
                 >
-                  →
-                </motion.span>
-              </motion.div>
+                  Search Hotels Now
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-3 bg-white/20 backdrop-blur-sm text-white font-bold rounded-full text-lg border-2 border-white/30 hover:bg-white/30 transition-colors"
+                >
+                  View All Deals →
+                </motion.button>
+              </div>
+              
+              <div className="mt-8 flex flex-wrap justify-center gap-6 text-white/80 text-sm">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="h-4 w-4" />
+                  <span>No booking fees</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  <span>Best price guaranteed</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  <span>24/7 customer support</span>
+                </div>
+              </div>
             </div>
-
-            {/* Animated Border */}
-            <motion.div
-              className={`absolute bottom-0 left-1/2 h-1 bg-gradient-to-r ${service.gradient} rounded-full`}
-              initial={{ width: 0, x: "-50%" }}
-              whileInView={{ width: "60%" }}
-              transition={{ delay: index * 0.2 + 0.5, duration: 0.8 }}
-              viewport={{ once: true }}
-              whileHover={{ width: "80%" }}
-            />
           </div>
         </motion.div>
-      ))}
-    </div>
 
-    {/* Compact Stats with Hover Effects */}
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.6 }}
-      viewport={{ once: true }}
-      className="mt-16"
-    >
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 border border-blue-100">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { number: '5M+', label: 'Happy Travelers', icon: '👨‍👩‍👧‍👦' },
-            { number: '150+', label: 'Countries', icon: '🌎' },
-            { number: '24/7', label: 'Support', icon: '🛡️' },
-            { number: '4.9★', label: 'Rating', icon: '⭐' },
-          ].map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.8 + index * 0.1, type: "spring" }}
-              viewport={{ once: true }}
-              className="text-center group"
-            >
-              <motion.div
-                className="text-2xl mb-2"
-                whileHover={{ scale: 1.2, rotate: 5 }}
-              >
-                {stat.icon}
-              </motion.div>
-              <div className="text-2xl font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors duration-300">
-                {stat.number}
-              </div>
-              <div className="text-gray-600 text-sm font-medium">
-                {stat.label}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Features with Cool Animations */}
+        {/* Footer */}
         <motion.div
           initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
-          viewport={{ once: true }}
-          className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-8 border-t border-blue-200"
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className={`text-center pt-8 border-t ${
+            timeOfDay === 'day' ? 'border-gray-200' : 'border-gray-700'
+          }`}
         >
-          {[
-            "Best price guarantee",
-            "Instant confirmation", 
-            "No hidden fees",
-            "Secure payments",
-          ].map((feature, index) => (
-            <motion.div
-              key={feature}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ delay: 1.4 + index * 0.1, type: "spring" }}
-              viewport={{ once: true }}
-              className="flex items-center justify-center gap-2 text-sm text-gray-700 group"
-              whileHover={{ scale: 1.05 }}
-            >
-              <motion.div
-                whileHover={{ scale: 1.2, rotate: 360 }}
-                transition={{ duration: 0.5 }}
-              >
-                <CheckCircle className="w-4 h-4 text-green-500" />
-              </motion.div>
-              <span className="group-hover:text-gray-900 transition-colors duration-300">
-                {feature}
-              </span>
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
-    </motion.div>
-
-    {/* CTA Button */}
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ delay: 1.6 }}
-      viewport={{ once: true }}
-      className="text-center mt-12"
-    >
-      <motion.button
-        className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group"
-        whileHover={{ 
-          scale: 1.05,
-          boxShadow: "0 20px 40px rgba(99, 102, 241, 0.3)"
-        }}
-        whileTap={{ scale: 0.95 }}
-      >
-        <span className="flex items-center gap-2">
-          <span>Start Your Journey</span>
-          <motion.span
-            animate={{ x: [0, 4, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          >
-            ✈️
-          </motion.span>
-        </span>
-      </motion.button>
-    </motion.div>
-  </div>
-</section>
-{/* Services Section */}
-
-{/* Testimonials Section */}
-<section className="py-20 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white relative overflow-hidden">
-  {/* Background Elements */}
-  <div className="absolute inset-0 pointer-events-none">
-    <motion.div
-      className="absolute top-1/4 left-1/3 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
-      animate={{
-        scale: [1, 1.1, 1],
-        opacity: [0.1, 0.2, 0.1],
-      }}
-      transition={{
-        duration: 8,
-        repeat: Infinity,
-        ease: "easeInOut",
-      }}
-    />
-  </div>
-
-  <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      viewport={{ once: true }}
-      className="text-center mb-16"
-    >
-      <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-        What Travelers Say
-      </h2>
-      <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto rounded-full mb-6" />
-      <p className="text-xl text-purple-200 max-w-3xl mx-auto">
-        Join thousands of satisfied travelers who have transformed their journey with FlightFinder.
-      </p>
-    </motion.div>
-
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-      {[
-        {
-          name: "Sarah Chen",
-          role: "Frequent Traveler",
-          content: "FlightFinder saved me over $500 on my last international trip. The price alerts are incredible!",
-          rating: 5
-        },
-        {
-          name: "Mike Rodriguez",
-          role: "Business Traveler",
-          content: "The all-in-one booking makes my business trips so much easier. Hotel + flight combos are unbeatable.",
-          rating: 5
-        },
-        {
-          name: "Emily Watson",
-          role: "Family Traveler",
-          content: "Planning family vacations used to be stressful. Now it's actually enjoyable thanks to FlightFinder!",
-          rating: 5
-        }
-      ].map((testimonial, index) => (
-        <motion.div
-          key={testimonial.name}
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.2 }}
-          viewport={{ once: true }}
-          className="group"
-        >
-          <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20 h-full group-hover:bg-white/15 transition-all duration-300">
-            {/* Stars */}
-            <div className="flex mb-4">
-              {[...Array(testimonial.rating)].map((_, i) => (
-                <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-              ))}
-            </div>
-            
-            <p className="text-lg text-purple-100 mb-6 leading-relaxed">
-              "{testimonial.content}"
-            </p>
-            
-            <div>
-              <div className="font-semibold text-white">{testimonial.name}</div>
-              <div className="text-purple-300 text-sm">{testimonial.role}</div>
-            </div>
+          <div className="flex flex-wrap justify-center items-center gap-4 mb-4">
+            {[
+              "🏆 Award-winning service since 2015",
+              "🌎 Hotels in 192 countries",
+              "💯 Price match guarantee",
+              "⭐ 4.9/5 customer rating",
+            ].map((text, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span className={`text-sm ${
+                  timeOfDay === 'day' ? 'text-gray-600' : 'text-gray-300'
+                }`}>
+                  {text}
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className={`text-xs mb-4 max-w-2xl mx-auto ${
+            timeOfDay === 'day' ? 'text-gray-500' : 'text-gray-400'
+          }`}>
+            Travelikeg is a leading hotel comparison platform. We search hundreds of booking sites to help you find the best hotel deals. 
+            We are not a booking agency and do not charge any booking fees. All reservations are made directly with the hotel or booking site.
+          </p>
+          <div className={`flex flex-wrap justify-center items-center gap-4 text-xs ${
+            timeOfDay === 'day' ? 'text-gray-400' : 'text-gray-500'
+          }`}>
+            <span>© 2024 Travelikeg.com</span>
+            <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+            <span>Privacy Policy</span>
+            <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+            <span>Terms of Service</span>
+            <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+            <span>Cookie Policy</span>
           </div>
         </motion.div>
-      ))}
-    </div>
-  </div>
-</section>
-
-
+      </div>
     </div>
   );
 }

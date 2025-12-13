@@ -6,9 +6,9 @@ import Layout from '../components/Layout';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'FlightFinder - Find Your Perfect Flight',
+  title: 'Travelike🅶 - Find the Best Flight Deals',
   description: 'Discover the best flight deals with our advanced search technology. Compare prices, find hidden gems, and book with confidence.',
-  keywords: 'flights, travel, booking, airlines, cheap flights',
+  keywords: 'flights, travel, booking, airlines, cheap flights,travel deals, vacation, holiday, airfare, travellikeg, flight search, flight comparison, travel planning, travel tips, travel blog, travel guides, travel inspiration, travel discounts',
   viewport: 'width=device-width, initial-scale=1',
 };
 

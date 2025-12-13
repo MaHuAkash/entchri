@@ -4,15 +4,14 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Home, Plane, Car, Hotel, BookOpen, User } from 'lucide-react';
+import { Menu, X, Plane, Car, Hotel, BookOpen, User } from 'lucide-react';
 
 const navigation = [
-  { name: 'Home', href: '/', icon: Home },
   { name: 'About', href: '/about', icon: User },
   { name: 'Contact', href: '/contact', icon: User },
   { name: 'Flight', href: '/flights', icon: Plane },
   { name: 'Car', href: '/404', icon: Car },
-  { name: 'Hotel', href: '/hotels', icon: Hotel },
+  { name: 'Hotel', href: '/', icon: Hotel },
   { name: 'Blogs', href: '/blogs', icon: BookOpen },
 ];
 
@@ -22,27 +21,31 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
+    // Reset scroll to top on page change
+    window.scrollTo(0, 0);
+    
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
     };
+    
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [pathname]); // Added pathname dependency to reset on route change
 
   // Split navigation for desktop layout
-  const leftNav = navigation.slice(0, 3); // Home, About, Contact
-  const rightNav = navigation.slice(3); // Flight, Car, Hotel, Blogs
+  const leftNav = navigation.slice(0, 3); // About, Contact, Flight
+  const rightNav = navigation.slice(3); // Car, Hotel, Blogs
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
       {/* Desktop Navigation */}
-      <header className={`hidden lg:block fixed top-0 w-full z-50 transition-all duration-300 ${
+      <header className={`hidden lg:block fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled 
           ? 'bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-200' 
           : 'bg-white/90 backdrop-blur-lg'
       }`}>
         <nav className="mx-auto flex items-center justify-between" style={{ width: '70%' }}>
-          {/* Left Navigation - Home, About, Contact */}
+          {/* Left Navigation - About, Contact, Flight */}
           <div className="flex items-center space-x-8 py-4">
             {leftNav.map((link) => {
               const Icon = link.icon;
@@ -85,13 +88,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </motion.div>
               </div>
               <div className="flex flex-col">
-                <span className="text-2xl font-bold text-gray-900">TravelikeG</span>
+                <span className="text-2xl font-bold text-gray-900">Travelike🅶</span>
                 <div className="h-0.5 w-full bg-gradient-to-r from-blue-600 to-transparent" />
               </div>
             </Link>
           </motion.div>
 
-          {/* Right Navigation - Flight, Car, Hotel, Blogs */}
+          {/* Right Navigation - Car, Hotel, Blogs */}
           <div className="flex items-center space-x-8 py-4">
             {rightNav.map((link) => {
               const Icon = link.icon;
@@ -121,14 +124,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </nav>
       </header>
 
-      {/* Mobile Navigation - Keep exactly the same as before */}
+      {/* Spacer for fixed desktop header - FIXED THIS */}
+      <div className="hidden lg:block h-16" /> {/* This pushes content down below fixed header */}
+
+      {/* Mobile Navigation */}
       <header className="lg:hidden bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
         <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" aria-label="Top">
           <div className="flex w-full items-center justify-between py-4">
             <div className="flex items-center">
               <Link href="/" className="flex items-center space-x-2">
                 <Plane className="h-8 w-8 text-blue-600" />
-                <span className="text-xl font-bold text-gray-900">Travelix</span>
+                <span className="text-xl font-bold text-gray-900">🅻🅸🅺🅴🅶</span>
               </Link>
             </div>
 
@@ -185,10 +191,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </nav>
       </header>
 
-      {/* Spacer for fixed desktop header */}
-      <div className="lg:hidden" /> {/* Mobile doesn't need spacer since it's sticky */}
-
-      <main className="flex-1">
+      <main className="flex-1 w-full">
         {children}
       </main>
 
