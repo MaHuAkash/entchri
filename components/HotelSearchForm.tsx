@@ -24,6 +24,10 @@ export default function HotelSearchForm({ loading = false }: HotelSearchFormProp
   const guestSelectorRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Configuration - YOUR AVIASALES SETTINGS
+  const YOUR_MARKER = '297036'; // Your Aviasales affiliate marker
+  const BASE_URL = 'https://aviasales.tp.st'; // Travelpayouts tracking domain
+
   // Check mobile viewport
   useEffect(() => {
     const checkMobile = () => {
@@ -63,26 +67,44 @@ export default function HotelSearchForm({ loading = false }: HotelSearchFormProp
 
   const formatDate = (date: Date) => date.toISOString().split('T')[0];
 
-  // Generate Booking.com URL
-  const getBookingUrl = () => {
+  // Generate Aviasales Hotel URL with your affiliate tracking
+  const getAviasalesHotelUrl = () => {
     const encodedQuery = encodeURIComponent(formData.query);
-    const baseParams = {
-      checkin: formData.checkIn || formatDate(tomorrow),
-      checkout: formData.checkOut || formatDate(dayAfterTomorrow),
-      group_adults: formData.adults.toString(),
-      group_children: formData.children.toString(),
-      no_rooms: formData.rooms.toString(),
-    };
-
-    const params = new URLSearchParams(baseParams);
-    return `https://www.booking.com/searchresults.html?ss=${encodedQuery}&${params}`;
+    const checkin = formData.checkIn || formatDate(tomorrow);
+    const checkout = formData.checkOut || formatDate(dayAfterTomorrow);
+    
+    // Build Aviasales hotels URL with your affiliate marker
+    let url = `${BASE_URL}/hotels?url_id=${YOUR_MARKER}`;
+    
+    // Add search parameters
+    url += `&city=${encodedQuery}`;
+    url += `&checkin=${checkin}`;
+    url += `&checkout=${checkout}`;
+    url += `&adults=${formData.adults}`;
+    url += `&rooms=${formData.rooms}`;
+    
+    // Add children if any (with default age 10 for each child as required by Aviasales)
+    if (formData.children > 0) {
+      url += `&children=${formData.children}`;
+      // Create ages string (e.g., "10,10" for 2 children)
+      const childrenAges = Array(formData.children).fill(10).join(',');
+      url += `&children_age=${childrenAges}`;
+    }
+    
+    return url;
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.query.trim()) return;
-    const bookingUrl = getBookingUrl();
-    window.open(bookingUrl, '_blank', 'noopener,noreferrer');
+    
+    const aviasalesUrl = getAviasalesHotelUrl();
+    
+    // Open Aviasales in new tab with affiliate tracking
+    window.open(aviasalesUrl, '_blank', 'noopener,noreferrer');
+    
+    // Optional: Log for debugging
+    console.log('Redirecting to Aviasales:', aviasalesUrl);
   };
 
   const incrementGuests = (type: 'adults' | 'children' | 'rooms') => {
@@ -124,6 +146,19 @@ export default function HotelSearchForm({ loading = false }: HotelSearchFormProp
     }
   };
 
+  // Helper to clean input for airport codes (if needed for future flight integration)
+  const cleanAirportCode = (input: string) => {
+    const match = input.match(/\(([A-Z]{3})\)/);
+    return match ? match[1] : input.toUpperCase().replace(/[^A-Z]/g, '');
+  };
+
+  // For future: If you want to add flight search functionality
+  const redirectToAviasalesFlights = () => {
+    // This function can be implemented when you add flight search
+    // Example flight URL structure:
+    // https://aviasales.tp.st/?url_id=297036&origin=JFK&destination=LON&search_date=2024-12-25
+  };
+
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <motion.div
@@ -135,7 +170,7 @@ export default function HotelSearchForm({ loading = false }: HotelSearchFormProp
       >
         <div className="p-4 sm:p-6">
           <form onSubmit={handleSearch}>
-            {/* Search Tabs */}
+            {/* Search Tabs - You can add flight tab here later */}
             <div className="flex items-center gap-2 mb-6">
               <button
                 type="button"
@@ -163,11 +198,23 @@ export default function HotelSearchForm({ loading = false }: HotelSearchFormProp
                 <span className="hidden sm:inline">Specific hotel</span>
                 <span className="sm:hidden">Hotel</span>
               </button>
+              {/* Future: Add Flights tab */}
+              {/* <button
+                type="button"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors text-sm sm:text-base"
+                onClick={() => {
+                  // Navigate to flight search page or show flight form
+                  window.location.href = '/flights';
+                }}
+              >
+                <Plane className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span>Flights</span>
+              </button> */}
             </div>
 
             {/* Search Form Grid - Responsive Layout */}
             <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 lg:grid-cols-5 sm:gap-4">
-              {/* Location/Hotel Input - Takes full width on mobile, 2 cols on desktop */}
+              {/* Location/Hotel Input */}
               <div className="lg:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {searchType === 'city' ? 'City or hotel' : 'Hotel name'}
@@ -243,7 +290,7 @@ export default function HotelSearchForm({ loading = false }: HotelSearchFormProp
                 </div>
               </div>
 
-              {/* Guests Selector - Fixed width to prevent overflow */}
+              {/* Guests Selector */}
               <div className="relative" ref={guestSelectorRef}>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Guests & rooms
@@ -404,59 +451,62 @@ export default function HotelSearchForm({ loading = false }: HotelSearchFormProp
                 </AnimatePresence>
               </div>
 
-              {/* Search Button - Enhanced with prominent icon */}
-             {/* Search Button - Minimal Enhanced */}
-<div className="sm:col-span-2 lg:col-span-1 flex items-end">
-  <motion.button
-    type="submit"
-    whileHover={{ 
-      scale: 1.02,
-      transition: { type: "spring", stiffness: 400, damping: 17 }
-    }}
-    whileTap={{ scale: 0.98 }}
-    disabled={!formData.query.trim()}
-    className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl text-base group relative overflow-hidden"
-    aria-label="Search hotels"
-  >
-    {/* Subtle shine effect */}
-    <div className="absolute inset-0 bg-gradient-to-r from-transparent/0 via-white/10 to-transparent/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-    
-    <div className="flex items-center justify-center gap-3">
-      <div className="relative">
-        <motion.div
-          className="absolute inset-0 bg-white/30 rounded-full"
-          animate={{ 
-            scale: [1, 1.3, 1],
-            opacity: [0.4, 0.6, 0.4]
-          }}
-          transition={{ 
-            duration: 2,
-            repeat: Infinity 
-          }}
-        />
-        <motion.div
-          whileHover={{ rotate: 90 }}
-          transition={{ type: "spring", stiffness: 300 }}
-        >
-          <Search className="h-5 w-5 relative z-10" />
-        </motion.div>
-      </div>
-      <motion.span
-        animate={{ x: [0, 1, 0] }}
-        transition={{ 
-          duration: 2,
-          repeat: Infinity,
-          repeatDelay: 3 
-        }}
-      >
-        Search
-      </motion.span>
-    </div>
-  </motion.button>
-</div>
+              {/* Search Button */}
+              <div className="sm:col-span-2 lg:col-span-1 flex items-end">
+                <motion.button
+                  type="submit"
+                  whileHover={{ 
+                    scale: 1.02,
+                    transition: { type: "spring", stiffness: 400, damping: 17 }
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                  disabled={!formData.query.trim()}
+                  className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl text-base group relative overflow-hidden"
+                  aria-label="Search hotels on Aviasales"
+                >
+                  {/* Subtle shine effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent/0 via-white/10 to-transparent/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                  
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="relative">
+                      <motion.div
+                        className="absolute inset-0 bg-white/30 rounded-full"
+                        animate={{ 
+                          scale: [1, 1.3, 1],
+                          opacity: [0.4, 0.6, 0.4]
+                        }}
+                        transition={{ 
+                          duration: 2,
+                          repeat: Infinity 
+                        }}
+                      />
+                      <motion.div
+                        whileHover={{ rotate: 90 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                      >
+                        <Search className="h-5 w-5 relative z-10" />
+                      </motion.div>
+                    </div>
+                    <motion.span
+                      animate={{ x: [0, 1, 0] }}
+                      transition={{ 
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatDelay: 3 
+                      }}
+                    >
+                      Search
+                    </motion.span>
+                  </div>
+                </motion.button>
+              </div>
             </div>
           </form>
           
+          {/* Optional: Add a small note about affiliate tracking */}
+          <div className="mt-4 text-xs text-gray-500 text-center">
+            <p>Powered by Aviasales. When you book, we may earn a commission.</p>
+          </div>
         </div>
       </motion.div>
     </div>
