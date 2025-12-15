@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 import Layout from '../components/Layout';
 
@@ -23,6 +24,7 @@ export default function RootLayout({
       <body className={`${inter.className} h-full`}>
         <Layout>{children}</Layout>
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
