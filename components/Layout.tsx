@@ -9,9 +9,9 @@ import { Menu, X, Plane, Car, Hotel, BookOpen, User } from 'lucide-react';
 const navigation = [
   { name: 'About', href: '/about', icon: User },
   { name: 'Contact', href: '/contact', icon: User },
-  { name: 'Flight', href: '/flights', icon: Plane },
+  { name: 'Flight', href: '/', icon: Plane },
   { name: 'Car', href: '/404', icon: Car },
-  { name: 'Hotel', href: '/', icon: Hotel },
+  { name: 'Hotel', href: '/hotels', icon: Hotel },
   { name: 'Blogs', href: '/blogs', icon: BookOpen },
 ];
 
@@ -198,7 +198,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <footer className="bg-white border-t border-gray-200 mt-auto">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="text-center text-gray-600">
-            <p>&copy; 2024 Travelix. All rights reserved.</p>
+            <p>&copy; 2024 Travelike🅶. All rights reserved. crafted by BugxAce</p>
           </div>
         </div>
       </footer>
