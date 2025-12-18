@@ -10,7 +10,6 @@ interface FlightSearchFormProps {
 
 export default function FlightSearchForm({ loading = false }: FlightSearchFormProps) {
   const [tripType, setTripType] = useState<'one-way' | 'round-trip' | 'multi-city'>('round-trip');
-  const [cabinClass, setCabinClass] = useState<'economy' | 'premium' | 'business' | 'first'>('economy');
   const [formData, setFormData] = useState({
     from: '',
     to: '',
@@ -63,35 +62,110 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
 
   const formatDate = (date: Date) => date.toISOString().split('T')[0];
 
-  // Generate search URL (example with Skyscanner-like format)
-  const getFlightSearchUrl = () => {
+  // FIXED: Date formatting for Aviasales (DDMMYYYY format)
+  const formatDateForAviasales = (dateStr: string): string => {
+    try {
+      if (!dateStr) return '';
+      
+      // Parse the date string
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) {
+        console.error('Invalid date:', dateStr);
+        return '';
+      }
+      
+      // Format to DDMMYYYY
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-indexed
+      const year = date.getFullYear().toString();
+      
+      return `${day}${month}${year}`;
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return '';
+    }
+  };
+
+  // Generate AVIA SALES affiliate URL with proper parameters
+  const getAviasalesSearchUrl = () => {
+    // Validate required fields
+    if (!formData.from.trim() || !formData.to.trim() || !formData.departureDate) {
+      return null;
+    }
+
+    // Get formatted dates
+    const departDate = formatDateForAviasales(formData.departureDate);
+    if (!departDate) {
+      console.error('Invalid departure date format');
+      return null;
+    }
+
+    // Base Aviasales URL with your affiliate marker
+    const baseUrl = 'https://aviasales.com';
+    
+    // Build query parameters
     const params = new URLSearchParams({
+      origin_iata: formData.from.trim().toUpperCase(),
+      destination_iata: formData.to.trim().toUpperCase(),
+      depart_date: departDate,
       adults: formData.adults.toString(),
       children: formData.children.toString(),
       infants: formData.infants.toString(),
-      cabinClass: cabinClass,
-      tripType: tripType,
-      from: formData.from,
-      to: formData.to,
-      departureDate: formData.departureDate || formatDate(tomorrow),
+      trip_class: '0', // Always economy (0 = economy, 1 = business)
+      with_request: 'true',
+      marker: '297036' // Your affiliate marker
     });
 
+    // Add return date for round trips
     if (tripType === 'round-trip' && formData.returnDate) {
-      params.set('returnDate', formData.returnDate);
+      const returnDate = formatDateForAviasales(formData.returnDate);
+      if (returnDate) {
+        params.set('return_date', returnDate);
+      }
     }
 
-    return `https://www.skyscanner.net/transport/flights/${formData.from}/${formData.to}/${params}`;
+    // For one-way trips, specify one_way=true
+    if (tripType === 'one-way') {
+      params.set('one_way', 'true');
+    }
+
+    const url = `${baseUrl}/search?${params.toString()}`;
+    console.log('Generated Aviasales URL:', url);
+    return url;
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.from.trim() || !formData.to.trim()) return;
-    const flightUrl = getFlightSearchUrl();
-    window.open(flightUrl, '_blank', 'noopener,noreferrer');
+    
+    // Validate required fields
+    if (!formData.from.trim()) {
+      alert('Please enter departure city/airport');
+      return;
+    }
+    
+    if (!formData.to.trim()) {
+      alert('Please enter destination city/airport');
+      return;
+    }
+    
+    if (!formData.departureDate) {
+      alert('Please select departure date');
+      return;
+    }
+
+    const aviasalesUrl = getAviasalesSearchUrl();
+    
+    if (aviasalesUrl) {
+      // Open Aviasales in new tab with affiliate tracking
+      window.open(aviasalesUrl, '_blank', 'noopener,noreferrer');
+      console.log('Redirecting to Aviasales:', aviasalesUrl);
+    } else {
+      console.error('Failed to generate Aviasales URL');
+    }
   };
 
   const incrementPassengers = (type: 'adults' | 'children' | 'infants') => {
-    const max = type === 'infants' ? formData.adults : 9; // Infants cannot exceed adults
+    const max = type === 'infants' ? formData.adults : 9;
     setFormData(prev => ({
       ...prev,
       [type]: Math.min(prev[type] + 1, max)
@@ -160,7 +234,7 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
               {/* From Location - Adjusted to span 3 columns */}
               <div className="lg:col-span-3">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  From
+                  From <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -171,7 +245,7 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
                     value={formData.from}
                     onChange={(e) => handleInputChange('from', e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="City or airport"
+                    placeholder="City or airport (e.g., JFK, LHR)"
                     className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500 text-sm sm:text-base transition-colors"
                     required
                   />
@@ -190,7 +264,7 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
               {/* To Location - Adjusted to span 3 columns */}
               <div className="lg:col-span-3">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  To
+                  To <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -201,7 +275,7 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
                     value={formData.to}
                     onChange={(e) => handleInputChange('to', e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="City or airport"
+                    placeholder="City or airport (e.g., LAX, CDG)"
                     className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500 text-sm sm:text-base transition-colors"
                     required
                   />
@@ -220,7 +294,7 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
               {/* Departure Date - Adjusted to span 2 columns */}
               <div className="lg:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Departure
+                  Departure <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -232,6 +306,7 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
                     onChange={(e) => handleInputChange('departureDate', e.target.value)}
                     min={formatDate(today)}
                     className="w-full pl-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 cursor-pointer text-sm sm:text-base transition-colors"
+                    required
                   />
                 </div>
               </div>
@@ -257,10 +332,10 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
                 </div>
               )}
 
-              {/* Passengers & Cabin Class Selector - Adjusted span */}
+              {/* Passengers Selector - Updated span and removed class reference */}
               <div className={`${tripType === 'round-trip' ? 'lg:col-span-2' : 'lg:col-span-4'} relative`} ref={passengerSelectorRef}>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Travelers & Class
+                  Travelers
                 </label>
                 <button
                   type="button"
@@ -270,7 +345,7 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     <Users className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors flex-shrink-0" />
                     <span className="truncate text-sm sm:text-base font-medium">
-                      {getPassengerSummary()} • {cabinClass}
+                      {getPassengerSummary()}
                     </span>
                   </div>
                   <ChevronDown className={`h-4 w-4 text-gray-400 group-hover:text-blue-600 transition-transform ${showPassengerSelector ? 'rotate-180' : ''} flex-shrink-0 ml-2`} />
@@ -304,7 +379,7 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
                       >
                         {isMobile && (
                           <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
-                            <h3 className="font-semibold text-gray-900 text-lg">Travelers & Class</h3>
+                            <h3 className="font-semibold text-gray-900 text-lg">Travelers</h3>
                             <button 
                               type="button"
                               onClick={() => setShowPassengerSelector(false)}
@@ -403,32 +478,6 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
                             </div>
                           </div>
 
-                          {/* Cabin Class Selection */}
-                          <div className="pt-4 border-t border-gray-200">
-                            <div className="font-semibold text-gray-900 text-base mb-3">Cabin Class</div>
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                              {([
-                                { value: 'economy', label: 'Economy' },
-                                { value: 'premium', label: 'Premium' },
-                                { value: 'business', label: 'Business' },
-                                { value: 'first', label: 'First' },
-                              ] as const).map((cls) => (
-                                <button
-                                  key={cls.value}
-                                  type="button"
-                                  onClick={() => setCabinClass(cls.value)}
-                                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                                    cabinClass === cls.value
-                                      ? 'bg-blue-600 text-white shadow-sm'
-                                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                  }`}
-                                >
-                                  {cls.label}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-
                           {/* Mobile Apply Button */}
                           {isMobile && (
                             <button
@@ -455,7 +504,7 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
                     transition: { type: "spring", stiffness: 400, damping: 17 }
                   }}
                   whileTap={{ scale: 0.98 }}
-                  disabled={!formData.from.trim() || !formData.to.trim()}
+                  disabled={!formData.from.trim() || !formData.to.trim() || !formData.departureDate}
                   className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl text-base group relative overflow-hidden"
                   aria-label="Search flights"
                 >
@@ -490,10 +539,12 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
                         repeatDelay: 3 
                       }}
                     >
-                      Search Flights
+                      Search Flights on Aviasales
                     </motion.span>
                   </div>
                 </motion.button>
+                
+              
               </div>
             </div>
           </form>
@@ -515,7 +566,9 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
                     setFormData(prev => ({
                       ...prev,
                       from: route.from,
-                      to: route.to
+                      to: route.to,
+                      departureDate: formatDate(tomorrow),
+                      returnDate: tripType === 'round-trip' ? formatDate(nextWeek) : ''
                     }));
                   }}
                   className="px-3 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors border border-blue-200"
