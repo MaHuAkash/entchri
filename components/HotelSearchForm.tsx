@@ -1,4 +1,3 @@
-// components/HotelSearchForm.tsx
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -26,7 +25,9 @@ export default function HotelSearchForm({ loading = false }: HotelSearchFormProp
 
   // Configuration - YOUR AVIASALES SETTINGS
   const YOUR_MARKER = '297036'; // Your Aviasales affiliate marker
-  const BASE_URL = 'https://aviasales.tp.st'; // Travelpayouts tracking domain
+  
+  // Use main Aviasales URL
+  const BASE_URL = 'https://www.aviasales.com';
 
   // Check mobile viewport
   useEffect(() => {
@@ -58,53 +59,148 @@ export default function HotelSearchForm({ loading = false }: HotelSearchFormProp
     }));
   };
 
-  // Set default dates
+  // FIXED: Get local date string without timezone conversion
+  const getLocalDateString = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Set default dates (FIXED)
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
   const dayAfterTomorrow = new Date(tomorrow);
   dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 1);
 
-  const formatDate = (date: Date) => date.toISOString().split('T')[0];
+  // FIXED: Get default check-in date (tomorrow)
+  const getDefaultCheckInDate = (): string => {
+    return getLocalDateString(tomorrow);
+  };
 
-  // Generate Aviasales Hotel URL with your affiliate tracking
+  // FIXED: Get default check-out date (day after tomorrow)
+  const getDefaultCheckOutDate = (): string => {
+    return getLocalDateString(dayAfterTomorrow);
+  };
+
+  // CORRECTED: Generate Aviasales Hotel URL with the proper hotel search structure
   const getAviasalesHotelUrl = () => {
-    const encodedQuery = encodeURIComponent(formData.query);
-    const checkin = formData.checkIn || formatDate(tomorrow);
-    const checkout = formData.checkOut || formatDate(dayAfterTomorrow);
-    
-    // Build Aviasales hotels URL with your affiliate marker
-    let url = `${BASE_URL}/hotels?url_id=${YOUR_MARKER}`;
-    
-    // Add search parameters
-    url += `&city=${encodedQuery}`;
-    url += `&checkin=${checkin}`;
-    url += `&checkout=${checkout}`;
-    url += `&adults=${formData.adults}`;
-    url += `&rooms=${formData.rooms}`;
-    
-    // Add children if any (with default age 10 for each child as required by Aviasales)
-    if (formData.children > 0) {
-      url += `&children=${formData.children}`;
-      // Create ages string (e.g., "10,10" for 2 children)
-      const childrenAges = Array(formData.children).fill(10).join(',');
-      url += `&children_age=${childrenAges}`;
+    if (!formData.query.trim()) {
+      console.error('Missing hotel search query');
+      return null;
     }
+
+    // Get dates
+    const checkin = formData.checkIn || getDefaultCheckInDate();
+    const checkout = formData.checkOut || getDefaultCheckOutDate();
+    
+    console.log('=== HOTEL SEARCH PARAMETERS ===');
+    console.log('Destination:', formData.query.trim());
+    console.log('Check-in:', checkin);
+    console.log('Check-out:', checkout);
+    console.log('Adults:', formData.adults);
+    console.log('Children:', formData.children);
+    console.log('Rooms:', formData.rooms);
+    
+    // Build the URL for Aviasales hotel search
+    // Based on your observation: https://www.aviasales.com/hotels?source=tab_change
+    // We need to use the exact parameter names that Aviasales expects
+    
+    const params = new URLSearchParams();
+    
+    // CRITICAL: The destination parameter is likely 'query' for hotels
+    params.append('query', formData.query.trim());
+    
+    // Use correct parameter names (based on typical hotel search patterns)
+    params.append('checkIn', checkin);
+    params.append('checkOut', checkout);
+    params.append('adults', formData.adults.toString());
+    
+    // Add children if any
+    if (formData.children > 0) {
+      params.append('children', formData.children.toString());
+      // Add ages (required when children > 0)
+      const childrenAges = Array(formData.children).fill(10).join(',');
+      params.append('childrenAges', childrenAges);
+    }
+    
+    params.append('rooms', formData.rooms.toString());
+    
+    // Add affiliate marker
+    params.append('marker', YOUR_MARKER);
+    
+    // Add source parameter to indicate hotel tab
+    params.append('source', 'tab_change');
+    
+    // Add locale and currency
+    params.append('locale', 'en');
+    params.append('currency', 'usd');
+    
+    // Build final URL
+    const url = `${BASE_URL}/hotels?${params.toString()}`;
+    
+    console.log('Generated hotel search URL:', url);
+    console.log('=== END ===');
     
     return url;
   };
 
+  // ALTERNATIVE: Try this format if the above doesn't work
+  const getAlternativeHotelUrl = () => {
+    if (!formData.query.trim()) return null;
+    
+    const checkin = formData.checkIn || getDefaultCheckInDate();
+    const checkout = formData.checkOut || getDefaultCheckOutDate();
+    
+    // Alternative: Use the pattern that might work better
+    const params = new URLSearchParams({
+      search: formData.query.trim(), // Try 'search' instead of 'query'
+      checkIn: checkin,
+      checkOut: checkout,
+      adults: formData.adults.toString(),
+      rooms: formData.rooms.toString(),
+      marker: YOUR_MARKER,
+      lang: 'en',
+      currency: 'usd'
+    });
+    
+    if (formData.children > 0) {
+      params.append('children', formData.children.toString());
+    }
+    
+    return `${BASE_URL}/hotels?${params.toString()}`;
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.query.trim()) return;
     
-    const aviasalesUrl = getAviasalesHotelUrl();
+    // Validate required fields
+    if (!formData.query.trim()) {
+      alert('Please enter a city, region, or hotel name');
+      return;
+    }
+
+    // Try the primary URL format first
+    let aviasalesUrl = getAviasalesHotelUrl();
     
-    // Open Aviasales in new tab with affiliate tracking
-    window.open(aviasalesUrl, '_blank', 'noopener,noreferrer');
+    // If primary doesn't work, try alternative
+    if (!aviasalesUrl) {
+      aviasalesUrl = getAlternativeHotelUrl();
+    }
     
-    // Optional: Log for debugging
-    console.log('Redirecting to Aviasales:', aviasalesUrl);
+    if (aviasalesUrl) {
+      console.log('DEBUG - Opening hotel search URL:', aviasalesUrl);
+      
+      // For testing: Open in current tab first to see what happens
+      // window.location.href = aviasalesUrl;
+      
+      // For production: Open in new tab
+      window.open(aviasalesUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      console.error('Failed to generate Aviasales hotel URL');
+      alert('Unable to generate search URL. Please check your inputs.');
+    }
   };
 
   const incrementGuests = (type: 'adults' | 'children' | 'rooms') => {
@@ -121,7 +217,6 @@ export default function HotelSearchForm({ loading = false }: HotelSearchFormProp
     }));
   };
 
-  // Updated getGuestSummary to be more compact
   const getGuestSummary = () => {
     if (isMobile) {
       return `${formData.adults} guest${formData.adults > 1 ? 's' : ''}`;
@@ -146,17 +241,18 @@ export default function HotelSearchForm({ loading = false }: HotelSearchFormProp
     }
   };
 
-  // Helper to clean input for airport codes (if needed for future flight integration)
-  const cleanAirportCode = (input: string) => {
-    const match = input.match(/\(([A-Z]{3})\)/);
-    return match ? match[1] : input.toUpperCase().replace(/[^A-Z]/g, '');
-  };
+  // Initialize default dates on component mount (FIXED)
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      checkIn: getDefaultCheckInDate(),
+      checkOut: getDefaultCheckOutDate()
+    }));
+  }, []); // Empty dependency array - run once on mount
 
-  // For future: If you want to add flight search functionality
-  const redirectToAviasalesFlights = () => {
-    // This function can be implemented when you add flight search
-    // Example flight URL structure:
-    // https://aviasales.tp.st/?url_id=297036&origin=JFK&destination=LON&search_date=2024-12-25
+  // Get today's date for minimum check-in date
+  const getTodayDate = (): string => {
+    return getLocalDateString(today);
   };
 
   return (
@@ -198,18 +294,6 @@ export default function HotelSearchForm({ loading = false }: HotelSearchFormProp
                 <span className="hidden sm:inline">Specific hotel</span>
                 <span className="sm:hidden">Hotel</span>
               </button>
-              {/* Future: Add Flights tab */}
-              {/* <button
-                type="button"
-                className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors text-sm sm:text-base"
-                onClick={() => {
-                  // Navigate to flight search page or show flight form
-                  window.location.href = '/flights';
-                }}
-              >
-                <Plane className="h-4 w-4 sm:h-5 sm:w-5" />
-                <span>Flights</span>
-              </button> */}
             </div>
 
             {/* Search Form Grid - Responsive Layout */}
@@ -263,9 +347,12 @@ export default function HotelSearchForm({ loading = false }: HotelSearchFormProp
                   </div>
                   <input
                     type="date"
-                    value={formData.checkIn || formatDate(tomorrow)}
-                    onChange={(e) => handleInputChange('checkIn', e.target.value)}
-                    min={formatDate(today)}
+                    value={formData.checkIn}
+                    onChange={(e) => {
+                      console.log('Hotel check-in date selected:', e.target.value);
+                      handleInputChange('checkIn', e.target.value);
+                    }}
+                    min={getTodayDate()}
                     className="w-full pl-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 cursor-pointer text-sm sm:text-base transition-colors"
                   />
                 </div>
@@ -282,9 +369,12 @@ export default function HotelSearchForm({ loading = false }: HotelSearchFormProp
                   </div>
                   <input
                     type="date"
-                    value={formData.checkOut || formatDate(dayAfterTomorrow)}
-                    onChange={(e) => handleInputChange('checkOut', e.target.value)}
-                    min={formData.checkIn || formatDate(tomorrow)}
+                    value={formData.checkOut}
+                    onChange={(e) => {
+                      console.log('Hotel check-out date selected:', e.target.value);
+                      handleInputChange('checkOut', e.target.value);
+                    }}
+                    min={formData.checkIn || getDefaultCheckInDate()}
                     className="w-full pl-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 cursor-pointer text-sm sm:text-base transition-colors"
                   />
                 </div>
@@ -495,7 +585,7 @@ export default function HotelSearchForm({ loading = false }: HotelSearchFormProp
                         repeatDelay: 3 
                       }}
                     >
-                      Search
+                      Search Hotels
                     </motion.span>
                   </div>
                 </motion.button>

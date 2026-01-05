@@ -53,35 +53,63 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
     }));
   };
 
-  // Set default dates
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 7);
-  const nextWeek = new Date(tomorrow);
-  nextWeek.setDate(nextWeek.getDate() + 7);
+  // Get local date string (FIXED: Handle timezone correctly)
+  const getLocalDateString = (date: Date): string => {
+    // Get local date components without timezone conversion
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
-  const formatDate = (date: Date) => date.toISOString().split('T')[0];
+  // Get today's date in local timezone
+  const getTodayDate = (): string => {
+    const today = new Date();
+    return getLocalDateString(today);
+  };
 
-  // FIXED: Date formatting for Aviasales (YYYY-MM-DD format - CORRECTED)
+  // Get tomorrow's date (7 days from now)
+  const getTomorrowDate = (): string => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 7);
+    return getLocalDateString(tomorrow);
+  };
+
+  // Get next week's date (14 days from now)
+  const getNextWeekDate = (): string => {
+    const nextWeek = new Date();
+    nextWeek.setDate(nextWeek.getDate() + 14);
+    return getLocalDateString(nextWeek);
+  };
+
+  // FIXED: Date formatting for Aviasales - NO Date object conversion!
   const formatDateForAviasales = (dateStr: string): string => {
     try {
       if (!dateStr) return '';
       
-      // Parse the date string
-      const date = new Date(dateStr);
-      if (isNaN(date.getTime())) {
-        console.error('Invalid date:', dateStr);
+      // The date string is already in YYYY-MM-DD format from the input
+      // Just validate it's the correct format
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dateRegex.test(dateStr)) {
+        console.error('Invalid date format. Expected YYYY-MM-DD:', dateStr);
         return '';
       }
       
-      // Format to YYYY-MM-DD (CORRECT FORMAT)
-      const year = date.getFullYear().toString();
-      const month = (date.getMonth() + 1).toString().padStart(2, '0');
-      const day = date.getDate().toString().padStart(2, '0');
+      // Parse the parts to ensure it's a valid date
+      const [year, month, day] = dateStr.split('-').map(Number);
       
-      return `${year}-${month}-${day}`; // CORRECT: YYYY-MM-DD
+      // Basic validation
+      if (year < 2024 || month < 1 || month > 12 || day < 1 || day > 31) {
+        console.error('Invalid date components:', dateStr);
+        return '';
+      }
+      
+      // Return the original string (it's already in correct format)
+      console.log('Sending date to Aviasales:', dateStr);
+      return dateStr;
+      
     } catch (error) {
-      console.error('Error formatting date:', error);
+      console.error('Error processing date:', error);
       return '';
     }
   };
@@ -90,35 +118,39 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
   const getAviasalesSearchUrl = () => {
     // Validate required fields
     if (!formData.from.trim() || !formData.to.trim() || !formData.departureDate) {
+      console.error('Missing required fields');
       return null;
     }
 
-    // Get formatted dates (YYYY-MM-DD format)
+    console.log('Form departure date:', formData.departureDate);
+    console.log('Form return date:', formData.returnDate);
+    
+    // Get formatted dates (NO conversion, just validation)
     const departDate = formatDateForAviasales(formData.departureDate);
     if (!departDate) {
       console.error('Invalid departure date format');
       return null;
     }
 
-    // FIXED: Base Aviasales URL (no /search in base URL)
-    const baseUrl = 'https://aviasales.com';
+    // Base Aviasales URL
+    const baseUrl = 'https://www.aviasales.com';
     
-    // Build query parameters - FIXED: Using correct parameter names
+    // Build query parameters
     const params = new URLSearchParams({
       origin: formData.from.trim().toUpperCase(),
       destination: formData.to.trim().toUpperCase(),
-      depart_date: departDate, // Already in YYYY-MM-DD format
+      depart_date: departDate,
       adults: formData.adults.toString(),
       children: formData.children.toString(),
       infants: formData.infants.toString(),
-      trip_class: '0', // 0 = economy, 1 = premium, 2 = business, 3 = first
-      marker: '297036', // Your affiliate marker
+      trip_class: '0',
+      marker: '297036',
       with_request: 'true',
-      locale: 'en', // Added locale
-      currency: 'usd' // Added currency
+      locale: 'en',
+      currency: 'usd'
     });
 
-    // FIXED: Add return date for round trips
+    // Add return date for round trips
     if (tripType === 'round-trip' && formData.returnDate) {
       const returnDate = formatDateForAviasales(formData.returnDate);
       if (returnDate) {
@@ -126,15 +158,19 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
       }
     }
 
-    // FIXED: For one-way trips, use one_way=true parameter
+    // For one-way trips
     if (tripType === 'one-way') {
       params.set('one_way', 'true');
     }
 
-    // FIXED: Construct the URL correctly
     const url = `${baseUrl}/search?${params.toString()}`;
+    console.log('=== DEBUG INFO ===');
+    console.log('Selected departure date (form):', formData.departureDate);
+    console.log('Selected return date (form):', formData.returnDate);
+    console.log('Sending departure date to Aviasales:', departDate);
+    console.log('Sending return date to Aviasales:', formData.returnDate ? formatDateForAviasales(formData.returnDate) : 'none');
     console.log('Generated Aviasales URL:', url);
-    console.log('Parameters:', Object.fromEntries(params.entries()));
+    console.log('=== END DEBUG ===');
     return url;
   };
 
@@ -157,18 +193,12 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
       return;
     }
 
-    // FIXED: Get the correct URL
+    // Get the URL
     const aviasalesUrl = getAviasalesSearchUrl();
     
     if (aviasalesUrl) {
-      // FIXED: Ensure the URL opens properly
-      console.log('Redirecting to:', aviasalesUrl);
-      
       // Open Aviasales in new tab with affiliate tracking
       window.open(aviasalesUrl, '_blank', 'noopener,noreferrer');
-      
-      // Alternative: You can also redirect in the same tab
-      // window.location.href = aviasalesUrl;
     } else {
       console.error('Failed to generate Aviasales URL');
       alert('Unable to generate search URL. Please check your inputs.');
@@ -214,14 +244,22 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
     }
   };
 
-  // Initialize default dates on component mount
+  // Initialize default dates on component mount (FIXED)
   useEffect(() => {
     setFormData(prev => ({
       ...prev,
-      departureDate: formatDate(tomorrow),
-      returnDate: formatDate(nextWeek)
+      departureDate: getTomorrowDate(),
+      returnDate: getNextWeekDate()
     }));
   }, []); // Empty dependency array - run once on mount
+
+  // FIXED: Create a simple format function for date inputs
+  const formatDateForInput = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -246,7 +284,7 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
                     // Set return date for round trips if not set
                     setFormData(prev => ({ 
                       ...prev, 
-                      returnDate: formatDate(nextWeek) 
+                      returnDate: getNextWeekDate()
                     }));
                   }
                 }}
@@ -335,8 +373,11 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
                 <input
                   type="date"
                   value={formData.departureDate}
-                  onChange={(e) => handleInputChange('departureDate', e.target.value)}
-                  min={formatDate(today)}
+                  onChange={(e) => {
+                    console.log('Departure date selected:', e.target.value);
+                    handleInputChange('departureDate', e.target.value);
+                  }}
+                  min={getTodayDate()}
                   className="w-full pl-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 cursor-pointer text-sm sm:text-base transition-colors"
                   required
                 />
@@ -356,7 +397,10 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
                   <input
                     type="date"
                     value={formData.returnDate}
-                    onChange={(e) => handleInputChange('returnDate', e.target.value)}
+                    onChange={(e) => {
+                      console.log('Return date selected:', e.target.value);
+                      handleInputChange('returnDate', e.target.value);
+                    }}
                     min={formData.departureDate}
                     className="w-full pl-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 cursor-pointer text-sm sm:text-base transition-colors"
                   />
@@ -384,147 +428,6 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
               </button>
 
               {/* Passenger Selector Dropdown - Same as before */}
-              <AnimatePresence>
-                  {showPassengerSelector && (
-                    <>
-                      {/* Mobile Backdrop */}
-                      {isMobile && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-                          onClick={() => setShowPassengerSelector(false)}
-                        />
-                      )}
-                      
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        transition={{ duration: 0.2 }}
-                        className={`absolute ${
-                          isMobile 
-                            ? 'fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-sm max-h-[80vh] overflow-y-auto' 
-                            : 'right-0 mt-2 min-w-[320px]'
-                        } bg-white rounded-xl shadow-2xl border border-gray-200 p-6 z-50`}
-                      >
-                        {isMobile && (
-                          <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
-                            <h3 className="font-semibold text-gray-900 text-lg">Travelers</h3>
-                            <button 
-                              type="button"
-                              onClick={() => setShowPassengerSelector(false)}
-                              className="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100 transition-colors"
-                            >
-                              <X className="w-5 h-5" />
-                            </button>
-                          </div>
-                        )}
-                        
-                        <div className="space-y-6">
-                          {/* Adults */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="font-semibold text-gray-900 text-base">Adults</div>
-                              <div className="text-sm text-gray-500 mt-1">Age 18+</div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                              <button
-                                type="button"
-                                onClick={() => decrementPassengers('adults')}
-                                disabled={formData.adults <= 1}
-                                className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 active:scale-95"
-                              >
-                                <span className="text-xl font-medium">−</span>
-                              </button>
-                              <span className="w-10 text-center font-bold text-gray-900 text-xl">
-                                {formData.adults}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => incrementPassengers('adults')}
-                                disabled={formData.adults >= 9}
-                                className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 active:scale-95"
-                              >
-                                <span className="text-xl font-medium">+</span>
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* Children */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="font-semibold text-gray-900 text-base">Children</div>
-                              <div className="text-sm text-gray-500 mt-1">Age 2-17</div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                              <button
-                                type="button"
-                                onClick={() => decrementPassengers('children')}
-                                disabled={formData.children <= 0}
-                                className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 active:scale-95"
-                              >
-                                <span className="text-xl font-medium">−</span>
-                              </button>
-                              <span className="w-10 text-center font-bold text-gray-900 text-xl">
-                                {formData.children}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => incrementPassengers('children')}
-                                disabled={formData.children >= 9}
-                                className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 active:scale-95"
-                              >
-                                <span className="text-xl font-medium">+</span>
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* Infants */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="font-semibold text-gray-900 text-base">Infants</div>
-                              <div className="text-sm text-gray-500 mt-1">Under 2</div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                              <button
-                                type="button"
-                                onClick={() => decrementPassengers('infants')}
-                                disabled={formData.infants <= 0}
-                                className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 active:scale-95"
-                              >
-                                <span className="text-xl font-medium">−</span>
-                              </button>
-                              <span className="w-10 text-center font-bold text-gray-900 text-xl">
-                                {formData.infants}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => incrementPassengers('infants')}
-                                disabled={formData.infants >= formData.adults}
-                                className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 active:scale-95"
-                              >
-                                <span className="text-xl font-medium">+</span>
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* Mobile Apply Button */}
-                          {isMobile && (
-                            <button
-                              type="button"
-                              onClick={() => setShowPassengerSelector(false)}
-                              className="w-full py-3.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors text-base mt-4"
-                            >
-                              Apply
-                            </button>
-                          )}
-                        </div>
-                      </motion.div>
-                    </>
-                  )}
-                </AnimatePresence>
               {/* ... (keep your existing dropdown code) ... */}
             </div>
 
@@ -602,8 +505,8 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
                     ...prev,
                     from: route.from,
                     to: route.to,
-                    departureDate: formatDate(tomorrow),
-                    returnDate: tripType === 'round-trip' ? formatDate(nextWeek) : ''
+                    departureDate: getLocalDateString(tomorrow),
+                    returnDate: tripType === 'round-trip' ? getLocalDateString(nextWeek) : ''
                   }));
                 }}
                 className="px-3 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors border border-blue-200"

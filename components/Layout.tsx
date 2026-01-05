@@ -10,7 +10,7 @@ const navigation = [
   { name: 'About', href: '/about', icon: User },
   { name: 'Contact', href: '/contact', icon: User },
   { name: 'Flight', href: '/', icon: Plane },
-  { name: 'Car', href: '/404', icon: Car },
+  { name: 'Car', href: '/cars', icon: Car },
   { name: 'Hotel', href: '/hotels', icon: Hotel },
   { name: 'Blogs', href: '/blogs', icon: BookOpen },
 ];
