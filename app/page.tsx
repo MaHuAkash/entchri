@@ -87,14 +87,7 @@ export default function FlightsPage() {
             className="text-center mb-10"
           >
             {/* Animated Badge */}
-            <motion.div
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full mb-6 shadow-lg"
-            >
-              <Plane className="h-4 w-4" />
-              <span className="text-sm font-semibold">⚡ Limited Time Deals ⚡</span>
-            </motion.div>
+            
             
             {/* Main Heading with Gradient */}
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">

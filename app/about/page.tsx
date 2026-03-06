@@ -1,40 +1,40 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Users, Target, Award, Heart, Plane, Globe, Zap, Shield } from 'lucide-react';
+import { Users, Target, Award, Heart, Plane, Globe, Zap, Shield, Eye, Search, Scale } from 'lucide-react';
 import { useInView } from 'framer-motion';
 import { useRef } from 'react';
 
 const values = [
   {
-    name: 'Innovation',
-    description: 'We constantly evolve our technology to provide the best flight search experience.',
-    icon: Zap,
+    name: 'Transparency',
+    description: 'We believe in clear, upfront pricing with no hidden fees or surprises.',
+    icon: Eye,
     color: 'from-purple-500 to-pink-500',
   },
   {
-    name: 'Excellence',
-    description: 'We strive for excellence in every aspect of our service and user experience.',
-    icon: Award,
+    name: 'Simple Search',
+    description: 'Our platform is designed to make finding flights quick and effortless.',
+    icon: Search,
     color: 'from-blue-500 to-cyan-500',
   },
   {
-    name: 'Community',
-    description: 'We believe in building a community of smart travelers who share and learn together.',
-    icon: Users,
+    name: 'Fair Deals',
+    description: 'We work to bring you the best value without compromising on quality.',
+    icon: Scale,
     color: 'from-green-500 to-emerald-500',
   },
   {
-    name: 'Passion',
-    description: 'Our passion for travel drives us to create exceptional tools for fellow travelers.',
+    name: 'Travelers First',
+    description: 'Every decision we make puts your travel experience and needs at the center.',
     icon: Heart,
     color: 'from-red-500 to-orange-500',
   },
 ];
 
 const stats = [
-  { number: '50M+', label: 'Travelers Served' },
-  { number: '190+', label: 'Countries Covered' },
+  { number: '10K+', label: 'Happy Travelers' },
+  { number: '100+', label: 'Destinations' },
   { number: '24/7', label: 'Support' },
 ];
 
@@ -42,7 +42,7 @@ export default function About() {
   const containerRef = useRef(null);
   
   return (
-    <div className=" bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen overflow-hidden">
+    <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen overflow-hidden">
       {/* Animated Background Elements */}
       <div className="fixed inset-0 pointer-events-none">
         <motion.div
@@ -96,19 +96,18 @@ export default function About() {
                   transition={{ delay: 0.5, duration: 0.8 }}
                 />
                 <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-                  Redefining
+                  About
                   <motion.span 
                     className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
                   >
-                    Flight Search
+                    Travelikeg
                   </motion.span>
                 </h1>
                 <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                  We're revolutionizing the way people discover and book flights, 
-                  making travel more accessible, affordable, and enjoyable for everyone.
+                  At Travelikeg, we are a team of independent individuals who believe that everyone deserves access to better travel deals.
                 </p>
               </motion.div>
 
@@ -202,7 +201,7 @@ export default function About() {
                   delay: 0.5,
                 }}
               >
-                <div className="text-sm font-semibold text-gray-700">Smart Search</div>
+                <div className="text-sm font-semibold text-gray-700">Better Deals</div>
               </motion.div>
 
               <motion.div
@@ -216,7 +215,7 @@ export default function About() {
                   delay: 1,
                 }}
               >
-                <div className="text-sm font-semibold text-gray-700">Best Deals</div>
+                <div className="text-sm font-semibold text-gray-700">Travel Smarter</div>
               </motion.div>
             </div>
           </motion.div>
@@ -252,13 +251,10 @@ export default function About() {
               className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 lg:p-12 shadow-2xl border border-white/20"
             >
               <p className="text-xl lg:text-2xl text-gray-700 leading-relaxed mb-8">
-                "At FlightFinder, we believe that everyone should have access to the best flight deals 
-                without compromising on experience or reliability."
+                "We created this platform to help people find affordable flights quickly, easily, and without stress."
               </p>
               <p className="text-lg text-gray-600 leading-relaxed">
-                Our mission is to empower travelers with cutting-edge technology that simplifies 
-                the flight search process while delivering unparalleled value and transparency. 
-                We're committed to making travel planning seamless, intuitive, and exciting.
+                We know how frustrating it can be to search multiple websites just to compare prices. That’s why we work to simplify the process and bring the best available options together in one place. We are not a large corporation. We are independent people who genuinely want to help others save money on travel. Whether you’re visiting family, going on vacation, or traveling for business, our goal is to help you book smarter and pay less.
               </p>
             </motion.div>
 
@@ -271,9 +267,9 @@ export default function About() {
               viewport={{ once: true }}
             >
               {[
-                { icon: Shield, title: 'Trusted', desc: 'Verified airlines and secure bookings' },
-                { icon: Zap, title: 'Fast', desc: 'Lightning-fast search results' },
-                { icon: Globe, title: 'Global', desc: 'Coverage across 190+ countries' },
+                { icon: Shield, title: 'Independent', desc: 'We work for you, not big corporations' },
+                { icon: Zap, title: 'Fast & Easy', desc: 'Quick searches with no hassle' },
+                { icon: Globe, title: 'Global Reach', desc: 'Deals to destinations worldwide' },
               ].map((feature, index) => (
                 <motion.div
                   key={feature.title}
@@ -296,70 +292,71 @@ export default function About() {
           </motion.div>
         </section>
 
-     {/* Section 3: Four-part Values Section */}
-<section className="min-h-[80vh] flex items-center justify-center p-6 lg:p-12">
-  <div className="max-w-7xl mx-auto w-full">
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      viewport={{ once: true }}
-      className="text-center mb-12"
-    >
-      <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-        Our Values
-      </h2>
-      <div className="w-20 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full" />
-    </motion.div>
-
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      {values.map((value, index) => (
-        <motion.div
-          key={value.name}
-          className="group relative"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.15 }}
-          viewport={{ once: true }}
-          whileHover={{ y: -5 }}
-        >
-          {/* Background Gradient on Hover */}
-          <div className={`absolute inset-0 bg-gradient-to-br ${value.color} rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
-          
-          <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20 h-full group-hover:shadow-xl transition-all duration-300">
+        {/* Section 3: Four-part Values Section */}
+        <section className="min-h-[80vh] flex items-center justify-center p-6 lg:p-12">
+          <div className="max-w-7xl mx-auto w-full">
             <motion.div
-              className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-r ${value.color} text-white mb-4`}
-              whileHover={{ 
-                scale: 1.05,
-                rotate: 5,
-              }}
-            >
-              <value.icon className="w-6 h-6" />
-            </motion.div>
-            
-            <h3 className="text-xl font-bold text-gray-900 mb-3">
-              {value.name}
-            </h3>
-            
-            <p className="text-gray-600 text-sm leading-relaxed">
-              {value.description}
-            </p>
-
-            {/* Animated underline */}
-            <motion.div
-              className={`h-0.5 bg-gradient-to-r ${value.color} rounded-full mt-3`}
-              initial={{ width: 0 }}
-              whileInView={{ width: '100%' }}
-              transition={{ delay: 0.3 + index * 0.1 }}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-            />
+              className="text-center mb-12"
+            >
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+                What We Believe In
+              </h2>
+              <div className="w-20 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full" />
+            </motion.div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {values.map((value, index) => (
+                <motion.div
+                  key={value.name}
+                  className="group relative"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.15 }}
+                  viewport={{ once: true }}
+                  whileHover={{ y: -5 }}
+                >
+                  {/* Background Gradient on Hover */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${value.color} rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
+                  
+                  <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20 h-full group-hover:shadow-xl transition-all duration-300">
+                    <motion.div
+                      className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-r ${value.color} text-white mb-4`}
+                      whileHover={{ 
+                        scale: 1.05,
+                        rotate: 5,
+                      }}
+                    >
+                      <value.icon className="w-6 h-6" />
+                    </motion.div>
+                    
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">
+                      {value.name}
+                    </h3>
+                    
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      {value.description}
+                    </p>
+
+                    {/* Animated underline */}
+                    <motion.div
+                      className={`h-0.5 bg-gradient-to-r ${value.color} rounded-full mt-3`}
+                      initial={{ width: 0 }}
+                      whileInView={{ width: '100%' }}
+                      transition={{ delay: 0.3 + index * 0.1 }}
+                      viewport={{ once: true }}
+                    />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </motion.div>
-      ))}
-    </div>
-  </div>
-</section>
-        {/* Section 4: Single Full-width Story Section */}
+        </section>
+
+        {/* Section 4: Single Full-width Vision Section */}
         <section className="min-h-screen flex items-center justify-center p-8 lg:p-16">
           <motion.div
             initial={{ opacity: 0 }}
@@ -403,7 +400,7 @@ export default function About() {
                   className="text-center mb-12"
                 >
                   <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-                    Our Journey
+                    Our Vision
                   </h2>
                   <div className="w-24 h-1 bg-white/50 mx-auto rounded-full" />
                 </motion.div>
@@ -415,17 +412,12 @@ export default function About() {
                     transition={{ delay: 0.4 }}
                     viewport={{ once: true }}
                   >
-                    <h3 className="text-3xl font-bold mb-6">From Vision to Reality</h3>
+                    <h3 className="text-3xl font-bold mb-6">Looking Ahead</h3>
                     <p className="text-lg leading-relaxed mb-6 opacity-90">
-                      Founded in 2024, FlightFinder emerged from a simple observation: finding affordable 
-                      flights shouldn't be complicated. Our team of travel enthusiasts and technology experts 
-                      came together to create a platform that combines sophisticated search algorithms with 
-                      an intuitive user interface.
+                      We aim to grow Travelikeg into a trusted platform for budget-conscious travelers who want reliable options and better value.
                     </p>
                     <p className="text-lg leading-relaxed opacity-90">
-                      Today, we serve millions of travelers worldwide, helping them discover amazing flight 
-                      deals and create unforgettable travel experiences. Our commitment to innovation and 
-                      customer satisfaction continues to drive us forward.
+                      Travel should be exciting — not stressful. We’re here to help you start your journey the right way.
                     </p>
                   </motion.div>
 
@@ -436,25 +428,25 @@ export default function About() {
                     viewport={{ once: true }}
                     className="relative"
                   >
-                    {/* Timeline Visualization */}
+                    {/* Vision Highlights */}
                     <div className="space-y-8">
                       {[
-                        { year: '2024', event: 'FlightFinder Founded' },
-                        { year: '2025', event: '1M Users Milestone' },
-                        { year: '2026', event: 'Global Expansion' },
-                      ].map((milestone, index) => (
+                        { icon: Users, text: 'Built by independent people, for travelers' },
+                        { icon: Award, text: 'Committed to transparency and fairness' },
+                        { icon: Heart, text: 'Putting your travel needs first' },
+                      ].map((item, index) => (
                         <motion.div
-                          key={milestone.year}
+                          key={index}
                           className="flex items-center space-x-4"
                           initial={{ opacity: 0, x: 50 }}
                           whileInView={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.8 + index * 0.2 }}
                           viewport={{ once: true }}
                         >
-                          <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center font-bold text-white border border-white/30">
-                            {milestone.year}
+                          <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white border border-white/30">
+                            <item.icon className="w-6 h-6" />
                           </div>
-                          <div className="text-white font-semibold">{milestone.event}</div>
+                          <div className="text-white font-semibold">{item.text}</div>
                         </motion.div>
                       ))}
                     </div>
@@ -476,7 +468,7 @@ export default function About() {
                     }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    Join Our Journey
+                    Start Your Journey
                   </motion.button>
                 </motion.div>
               </div>

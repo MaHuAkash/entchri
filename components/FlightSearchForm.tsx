@@ -2,13 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Plane, Calendar, Users, ChevronDown, MapPin, X } from 'lucide-react';
+import { Plane, Calendar, Users, ChevronDown, MapPin, X } from 'lucide-react';
 
-interface FlightSearchFormProps {
-  loading?: boolean;
-}
-
-export default function FlightSearchForm({ loading = false }: FlightSearchFormProps) {
+export default function FlightSearchForm() {
   const [tripType, setTripType] = useState<'one-way' | 'round-trip' | 'multi-city'>('round-trip');
   const [formData, setFormData] = useState({
     from: '',
@@ -25,10 +21,7 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
 
   // Check mobile viewport
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
@@ -41,228 +34,138 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
         setShowPassengerSelector(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleInputChange = (field: string, value: string | number) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  // Get local date string (FIXED: Handle timezone correctly)
+  // Date helpers
   const getLocalDateString = (date: Date): string => {
-    // Get local date components without timezone conversion
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
 
-  // Get today's date in local timezone
-  const getTodayDate = (): string => {
-    const today = new Date();
-    return getLocalDateString(today);
-  };
+  const getTodayDate = (): string => getLocalDateString(new Date());
 
-  // Get tomorrow's date (7 days from now)
   const getTomorrowDate = (): string => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 7);
-    return getLocalDateString(tomorrow);
+    const date = new Date();
+    date.setDate(date.getDate() + 7);
+    return getLocalDateString(date);
   };
 
-  // Get next week's date (14 days from now)
   const getNextWeekDate = (): string => {
-    const nextWeek = new Date();
-    nextWeek.setDate(nextWeek.getDate() + 14);
-    return getLocalDateString(nextWeek);
+    const date = new Date();
+    date.setDate(date.getDate() + 14);
+    return getLocalDateString(date);
   };
 
-  // FIXED: Date formatting for Aviasales - NO Date object conversion!
-  const formatDateForAviasales = (dateStr: string): string => {
-    try {
-      if (!dateStr) return '';
-      
-      // The date string is already in YYYY-MM-DD format from the input
-      // Just validate it's the correct format
-      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-      if (!dateRegex.test(dateStr)) {
-        console.error('Invalid date format. Expected YYYY-MM-DD:', dateStr);
-        return '';
-      }
-      
-      // Parse the parts to ensure it's a valid date
-      const [year, month, day] = dateStr.split('-').map(Number);
-      
-      // Basic validation
-      if (year < 2024 || month < 1 || month > 12 || day < 1 || day > 31) {
-        console.error('Invalid date components:', dateStr);
-        return '';
-      }
-      
-      // Return the original string (it's already in correct format)
-      console.log('Sending date to Aviasales:', dateStr);
-      return dateStr;
-      
-    } catch (error) {
-      console.error('Error processing date:', error);
-      return '';
-    }
+  const isValidDate = (dateStr: string): boolean => {
+    if (!dateStr) return false;
+    const regex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!regex.test(dateStr)) return false;
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return year >= 2024 && month >= 1 && month <= 12 && day >= 1 && day <= 31;
   };
 
-  // FIXED: Generate AVIA SALES affiliate URL with proper parameters
-  const getAviasalesSearchUrl = () => {
-    // Validate required fields
+  // Generate affiliate link
+  const getAviasalesSearchUrl = (): string | null => {
     if (!formData.from.trim() || !formData.to.trim() || !formData.departureDate) {
-      console.error('Missing required fields');
       return null;
     }
+    if (!isValidDate(formData.departureDate)) return null;
 
-    console.log('Form departure date:', formData.departureDate);
-    console.log('Form return date:', formData.returnDate);
-    
-    // Get formatted dates (NO conversion, just validation)
-    const departDate = formatDateForAviasales(formData.departureDate);
-    if (!departDate) {
-      console.error('Invalid departure date format');
-      return null;
-    }
-
-    // Base Aviasales URL
+    // Build destination URL
     const baseUrl = 'https://www.aviasales.com';
-    
-    // Build query parameters
-    const params = new URLSearchParams({
-      origin: formData.from.trim().toUpperCase(),
-      destination: formData.to.trim().toUpperCase(),
-      depart_date: departDate,
+    const searchParams = new URLSearchParams({
+      origin_iata: formData.from.trim().toUpperCase(),
+      destination_iata: formData.to.trim().toUpperCase(),
+      depart_date: formData.departureDate,
       adults: formData.adults.toString(),
       children: formData.children.toString(),
       infants: formData.infants.toString(),
       trip_class: '0',
-      marker: '297036',
-      with_request: 'true',
-      locale: 'en',
       currency: 'usd'
     });
 
-    // Add return date for round trips
-    if (tripType === 'round-trip' && formData.returnDate) {
-      const returnDate = formatDateForAviasales(formData.returnDate);
-      if (returnDate) {
-        params.set('return_date', returnDate);
-      }
+    if (tripType === 'round-trip' && formData.returnDate && isValidDate(formData.returnDate)) {
+      searchParams.append('return_date', formData.returnDate);
     }
-
-    // For one-way trips
     if (tripType === 'one-way') {
-      params.set('one_way', 'true');
+      searchParams.append('oneway', '1');
     }
 
-    const url = `${baseUrl}/search?${params.toString()}`;
-    console.log('=== DEBUG INFO ===');
-    console.log('Selected departure date (form):', formData.departureDate);
-    console.log('Selected return date (form):', formData.returnDate);
-    console.log('Sending departure date to Aviasales:', departDate);
-    console.log('Sending return date to Aviasales:', formData.returnDate ? formatDateForAviasales(formData.returnDate) : 'none');
-    console.log('Generated Aviasales URL:', url);
-    console.log('=== END DEBUG ===');
-    return url;
+    const destinationUrl = `${baseUrl}/search?${searchParams.toString()}`;
+
+    // Wrap in Travelpayouts affiliate link
+    const tpBase = 'https://tp.media/r';
+    const affiliateParams = new URLSearchParams({
+      marker: '297036',
+      trs: '504856',
+      p: '4114',
+      u: encodeURIComponent(destinationUrl)
+    });
+
+    return `${tpBase}?${affiliateParams.toString()}`;
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate required fields
-    if (!formData.from.trim()) {
-      alert('Please enter departure city/airport');
-      return;
-    }
-    
-    if (!formData.to.trim()) {
-      alert('Please enter destination city/airport');
-      return;
-    }
-    
-    if (!formData.departureDate) {
-      alert('Please select departure date');
-      return;
-    }
+    if (!formData.from.trim()) { alert('Please enter departure city/airport'); return; }
+    if (!formData.to.trim()) { alert('Please enter destination city/airport'); return; }
+    if (!formData.departureDate) { alert('Please select departure date'); return; }
 
-    // Get the URL
-    const aviasalesUrl = getAviasalesSearchUrl();
-    
-    if (aviasalesUrl) {
-      // Open Aviasales in new tab with affiliate tracking
-      window.open(aviasalesUrl, '_blank', 'noopener,noreferrer');
+    const affiliateUrl = getAviasalesSearchUrl();
+    if (affiliateUrl) {
+      window.open(affiliateUrl, '_blank', 'noopener,noreferrer');
     } else {
-      console.error('Failed to generate Aviasales URL');
       alert('Unable to generate search URL. Please check your inputs.');
     }
   };
 
   const incrementPassengers = (type: 'adults' | 'children' | 'infants') => {
     const max = type === 'infants' ? formData.adults : 9;
-    setFormData(prev => ({
-      ...prev,
-      [type]: Math.min(prev[type] + 1, max)
-    }));
+    setFormData(prev => ({ ...prev, [type]: Math.min(prev[type] + 1, max) }));
   };
 
   const decrementPassengers = (type: 'adults' | 'children' | 'infants') => {
-    setFormData(prev => ({
-      ...prev,
-      [type]: Math.max(prev[type] - 1, type === 'adults' ? 1 : 0)
-    }));
+    setFormData(prev => ({ ...prev, [type]: Math.max(prev[type] - 1, type === 'adults' ? 1 : 0) }));
   };
 
   const getPassengerSummary = () => {
     if (isMobile) {
       return `${formData.adults + formData.children} passenger${formData.adults + formData.children > 1 ? 's' : ''}`;
     }
-    const summary = [];
-    if (formData.adults > 0) summary.push(`${formData.adults} Adult${formData.adults > 1 ? 's' : ''}`);
-    if (formData.children > 0) summary.push(`${formData.children} Child${formData.children > 1 ? 'ren' : ''}`);
-    if (formData.infants > 0) summary.push(`${formData.infants} Infant${formData.infants > 1 ? 's' : ''}`);
-    return summary.join(', ');
+    const parts = [];
+    if (formData.adults) parts.push(`${formData.adults} Adult${formData.adults > 1 ? 's' : ''}`);
+    if (formData.children) parts.push(`${formData.children} Child${formData.children > 1 ? 'ren' : ''}`);
+    if (formData.infants) parts.push(`${formData.infants} Infant${formData.infants > 1 ? 's' : ''}`);
+    return parts.join(', ');
   };
 
   const clearLocation = (field: 'from' | 'to') => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: ''
-    }));
+    setFormData(prev => ({ ...prev, [field]: '' }));
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch(e);
-    }
+    if (e.key === 'Enter') handleSearch(e);
   };
 
-  // Initialize default dates on component mount (FIXED)
+  // Set default dates on mount
   useEffect(() => {
     setFormData(prev => ({
       ...prev,
       departureDate: getTomorrowDate(),
       returnDate: getNextWeekDate()
     }));
-  }, []); // Empty dependency array - run once on mount
-
-  // FIXED: Create a simple format function for date inputs
-  const formatDateForInput = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
+  }, []);
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8" >
       <div className="p-4 sm:p-6">
         <form onSubmit={handleSearch}>
           {/* Trip Type Tabs */}
@@ -277,15 +180,10 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
                 type="button"
                 onClick={() => {
                   setTripType(type);
-                  // Clear return date for one-way trips
                   if (type === 'one-way') {
                     setFormData(prev => ({ ...prev, returnDate: '' }));
                   } else if (type === 'round-trip' && !formData.returnDate) {
-                    // Set return date for round trips if not set
-                    setFormData(prev => ({ 
-                      ...prev, 
-                      returnDate: getNextWeekDate()
-                    }));
+                    setFormData(prev => ({ ...prev, returnDate: getNextWeekDate() }));
                   }
                 }}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base capitalize ${
@@ -301,29 +199,27 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
 
           {/* Search Form Grid */}
           <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 lg:grid-cols-12 sm:gap-4">
-            {/* From Location */}
+            {/* From */}
             <div className="lg:col-span-3">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 From <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <MapPin className="h-5 w-5 text-gray-400" />
-                </div>
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
                   value={formData.from}
                   onChange={(e) => handleInputChange('from', e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="City or airport (e.g., JFK, LHR)"
-                  className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500 text-sm sm:text-base transition-colors"
+                  className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   required
                 />
                 {formData.from && (
                   <button
                     type="button"
                     onClick={() => clearLocation('from')}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center hover:bg-gray-100 rounded-r-lg transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
                   >
                     <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
                   </button>
@@ -331,29 +227,27 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
               </div>
             </div>
 
-            {/* To Location */}
+            {/* To */}
             <div className="lg:col-span-3">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 To <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <MapPin className="h-5 w-5 text-gray-400" />
-                </div>
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
                   value={formData.to}
                   onChange={(e) => handleInputChange('to', e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="City or airport (e.g., LAX, CDG)"
-                  className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500 text-sm sm:text-base transition-colors"
+                  className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   required
                 />
                 {formData.to && (
                   <button
                     type="button"
                     onClick={() => clearLocation('to')}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center hover:bg-gray-100 rounded-r-lg transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
                   >
                     <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
                   </button>
@@ -367,48 +261,38 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
                 Departure <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Calendar className="h-5 w-5 text-gray-400" />
-                </div>
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="date"
                   value={formData.departureDate}
-                  onChange={(e) => {
-                    console.log('Departure date selected:', e.target.value);
-                    handleInputChange('departureDate', e.target.value);
-                  }}
+                  onChange={(e) => handleInputChange('departureDate', e.target.value)}
                   min={getTodayDate()}
-                  className="w-full pl-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 cursor-pointer text-sm sm:text-base transition-colors"
+                  className="w-full pl-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   required
                 />
               </div>
             </div>
 
-            {/* Return Date - Conditionally shown */}
+            {/* Return Date */}
             {tripType === 'round-trip' && (
               <div className="lg:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Return
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Calendar className="h-5 w-5 text-gray-400" />
-                  </div>
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     type="date"
                     value={formData.returnDate}
-                    onChange={(e) => {
-                      console.log('Return date selected:', e.target.value);
-                      handleInputChange('returnDate', e.target.value);
-                    }}
+                    onChange={(e) => handleInputChange('returnDate', e.target.value)}
                     min={formData.departureDate}
-                    className="w-full pl-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 cursor-pointer text-sm sm:text-base transition-colors"
+                    className="w-full pl-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   />
                 </div>
               </div>
             )}
 
-            {/* Passengers Selector */}
+            {/* Passengers */}
             <div className={`${tripType === 'round-trip' ? 'lg:col-span-2' : 'lg:col-span-4'} relative`} ref={passengerSelectorRef}>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Travelers
@@ -416,72 +300,80 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
               <button
                 type="button"
                 onClick={() => setShowPassengerSelector(!showPassengerSelector)}
-                className="w-full flex items-center justify-between px-4 py-3 border border-gray-300 rounded-lg hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-700 bg-white text-left group"
+                className="w-full flex items-center justify-between px-4 py-3 border border-gray-300 rounded-lg hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 text-left"
               >
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <Users className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors flex-shrink-0" />
-                  <span className="truncate text-sm sm:text-base font-medium">
-                    {getPassengerSummary()}
-                  </span>
+                <div className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-gray-400" />
+                  <span className="text-sm sm:text-base font-medium">{getPassengerSummary()}</span>
                 </div>
-                <ChevronDown className={`h-4 w-4 text-gray-400 group-hover:text-blue-600 transition-transform ${showPassengerSelector ? 'rotate-180' : ''} flex-shrink-0 ml-2`} />
+                <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${showPassengerSelector ? 'rotate-180' : ''}`} />
               </button>
 
-              {/* Passenger Selector Dropdown - Same as before */}
-              {/* ... (keep your existing dropdown code) ... */}
+              <AnimatePresence>
+                {showPassengerSelector && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute z-50 mt-2 w-72 bg-white rounded-lg shadow-xl border border-gray-200 p-4"
+                  >
+                    {/* Adult counter */}
+                    <div className="flex items-center justify-between">
+                      <div><div className="font-medium text-gray-900">Adults</div><div className="text-sm text-gray-500">Age 12+</div></div>
+                      <div className="flex items-center gap-3">
+                        <button type="button" onClick={() => decrementPassengers('adults')} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900">-</button>
+                        <span className="w-8 text-center font-medium text-gray-900">{formData.adults}</span>
+                        <button type="button" onClick={() => incrementPassengers('adults')} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900">+</button>
+                      </div>
+                    </div>
+
+                    {/* Children counter */}
+                    <div className="flex items-center justify-between mt-4">
+                      <div><div className="font-medium text-gray-900">Children</div><div className="text-sm text-gray-500">Age 2-11</div></div>
+                      <div className="flex items-center gap-3">
+                        <button type="button" onClick={() => decrementPassengers('children')} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900">-</button>
+                        <span className="w-8 text-center font-medium text-gray-900">{formData.children}</span>
+                        <button type="button" onClick={() => incrementPassengers('children')} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900">+</button>
+                      </div>
+                    </div>
+
+                    {/* Infants counter */}
+                    <div className="flex items-center justify-between mt-4">
+                      <div><div className="font-medium text-gray-900">Infants</div><div className="text-sm text-gray-500">Under 2</div></div>
+                      <div className="flex items-center gap-3">
+                        <button type="button" onClick={() => decrementPassengers('infants')} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900">-</button>
+                        <span className="w-8 text-center font-medium text-gray-900">{formData.infants}</span>
+                        <button type="button" onClick={() => incrementPassengers('infants')} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900">+</button>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-gray-200 mt-4">
+                      <button type="button" onClick={() => setShowPassengerSelector(false)} className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+                        Done
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Search Button */}
             <div className="sm:col-span-2 lg:col-span-12">
               <motion.button
                 type="submit"
-                whileHover={{ 
-                  scale: 1.02,
-                  transition: { type: "spring", stiffness: 400, damping: 17 }
-                }}
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 disabled={!formData.from.trim() || !formData.to.trim() || !formData.departureDate}
-                className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl text-base group relative overflow-hidden"
-                aria-label="Search flights"
+                className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-lg hover:shadow-xl relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent/0 via-white/10 to-transparent/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                
-                <div className="flex items-center justify-center gap-3">
-                  <div className="relative">
-                    <motion.div
-                      className="absolute inset-0 bg-white/30 rounded-full"
-                      animate={{ 
-                        scale: [1, 1.3, 1],
-                        opacity: [0.4, 0.6, 0.4]
-                      }}
-                      transition={{ 
-                        duration: 2,
-                        repeat: Infinity 
-                      }}
-                    />
-                    <motion.div
-                      whileHover={{ rotate: 90 }}
-                      transition={{ type: "spring", stiffness: 300 }}
-                    >
-                      <Plane className="h-5 w-5 relative z-10 rotate-45" />
-                    </motion.div>
-                  </div>
-                  <motion.span
-                    animate={{ x: [0, 1, 0] }}
-                    transition={{ 
-                      duration: 2,
-                      repeat: Infinity,
-                      repeatDelay: 3 
-                    }}
-                  >
-                    Search Flights on Aviasales
-                  </motion.span>
-                </div>
+                <Plane className="h-5 w-5 rotate-45" />
+                <span>Search Flights on Aviasales</span>
               </motion.button>
             </div>
           </div>
         </form>
-        
+
         {/* Quick Search Suggestions */}
         <div className="mt-6 pt-6 border-t border-gray-200">
           <div className="flex flex-wrap items-center gap-2">
@@ -500,7 +392,6 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
                   tomorrow.setDate(tomorrow.getDate() + 7);
                   const nextWeek = new Date(tomorrow);
                   nextWeek.setDate(nextWeek.getDate() + 7);
-                  
                   setFormData(prev => ({
                     ...prev,
                     from: route.from,
@@ -509,7 +400,7 @@ export default function FlightSearchForm({ loading = false }: FlightSearchFormPr
                     returnDate: tripType === 'round-trip' ? getLocalDateString(nextWeek) : ''
                   }));
                 }}
-                className="px-3 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors border border-blue-200"
+                className="px-3 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 border border-blue-200"
               >
                 {route.label}
               </button>
