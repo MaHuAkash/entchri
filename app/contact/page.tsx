@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, Clock, MessageCircle, Globe, Zap } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Clock, MessageCircle, Globe, Zap, Sparkles } from 'lucide-react';
 import { useRef, useState } from 'react';
 
 const contactMethods = [
@@ -75,14 +75,14 @@ export default function Contact() {
   };
 
   return (
-    <div className="pt-16 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen overflow-hidden">
-      {/* Animated Background */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-600 to-blue-400 overflow-hidden">
+      {/* Animated Background Elements - Deep blue theme */}
       <div className="fixed inset-0 pointer-events-none">
         <motion.div
-          className="absolute top-1/3 right-1/4 w-64 h-64 bg-blue-200 rounded-full blur-3xl opacity-20"
+          className="absolute top-1/3 right-1/4 w-64 h-64 bg-white/10 rounded-full mix-blend-overlay blur-3xl"
           animate={{
             scale: [1, 1.1, 1],
-            opacity: [0.2, 0.3, 0.2],
+            opacity: [0.1, 0.2, 0.1],
           }}
           transition={{
             duration: 8,
@@ -91,13 +91,25 @@ export default function Contact() {
           }}
         />
         <motion.div
-          className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-purple-200 rounded-full blur-3xl opacity-15"
+          className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-blue-300/20 rounded-full mix-blend-overlay blur-3xl"
           animate={{
             scale: [1.1, 1, 1.1],
-            opacity: [0.15, 0.25, 0.15],
+            opacity: [0.1, 0.3, 0.1],
           }}
           transition={{
             duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-300/10 rounded-full mix-blend-overlay blur-3xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.1, 0.2, 0.1],
+          }}
+          transition={{
+            duration: 12,
             repeat: Infinity,
             ease: "easeInOut",
           }}
@@ -121,15 +133,15 @@ export default function Contact() {
               transition={{ delay: 0.2 }}
             >
               <motion.div
-                className="w-16 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mb-6 rounded-full"
+                className="w-16 h-1 bg-gradient-to-r from-yellow-400 to-amber-500 mb-6 rounded-full"
                 initial={{ width: 0 }}
                 animate={{ width: 64 }}
                 transition={{ delay: 0.4, duration: 0.8 }}
               />
-              <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+              <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">
                 Let's Start
                 <motion.span 
-                  className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+                  className="block bg-gradient-to-r from-yellow-300 to-amber-300 bg-clip-text text-transparent"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.6 }}
@@ -137,7 +149,7 @@ export default function Contact() {
                   A Conversation
                 </motion.span>
               </h1>
-              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+              <p className="text-lg text-blue-100 mb-8 leading-relaxed">
                 Ready to take your travel experience to the next level? 
                 We're here to help you with any questions or concerns.
               </p>
@@ -163,8 +175,8 @@ export default function Contact() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 1 + index * 0.1 }}
                 >
-                  <div className="text-2xl font-bold text-gray-900">{stat.number}</div>
-                  <div className="text-gray-600 text-sm">{stat.label}</div>
+                  <div className="text-2xl font-bold text-yellow-300">{stat.number}</div>
+                  <div className="text-blue-100 text-sm">{stat.label}</div>
                 </motion.div>
               ))}
             </motion.div>
@@ -180,7 +192,7 @@ export default function Contact() {
             <div className="relative w-full max-w-md">
               {/* Floating Message Icons */}
               <motion.div
-                className="absolute -top-4 -left-4 bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-white/20"
+                className="absolute -top-4 -left-4 bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-white/30"
                 animate={{
                   y: [0, -10, 0],
                   rotate: [0, -5, 0],
@@ -190,11 +202,11 @@ export default function Contact() {
                   repeat: Infinity,
                 }}
               >
-                <MessageCircle className="w-8 h-8 text-blue-500" />
+                <MessageCircle className="w-8 h-8 text-blue-600" />
               </motion.div>
 
               <motion.div
-                className="absolute -bottom-4 -right-4 bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-white/20"
+                className="absolute -bottom-4 -right-4 bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-white/30"
                 animate={{
                   y: [0, 10, 0],
                   rotate: [0, 5, 0],
@@ -205,12 +217,12 @@ export default function Contact() {
                   delay: 1,
                 }}
               >
-                <Mail className="w-8 h-8 text-purple-500" />
+                <Mail className="w-8 h-8 text-purple-600" />
               </motion.div>
 
               {/* Main Contact Illustration */}
               <motion.div
-                className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl p-8 text-white shadow-2xl"
+                className="bg-gradient-to-br from-yellow-500 to-amber-600 rounded-3xl p-8 text-white shadow-2xl"
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.6 }}
@@ -229,7 +241,7 @@ export default function Contact() {
                     <Send className="w-10 h-10 text-white" />
                   </motion.div>
                   <h3 className="text-xl font-bold mb-2">Get In Touch</h3>
-                  <p className="text-blue-100 text-sm">
+                  <p className="text-yellow-100 text-sm">
                     We're excited to hear from you and help with your travel needs
                   </p>
                 </div>
@@ -239,133 +251,131 @@ export default function Contact() {
         </section>
 
         {/* Section 2: Single Full-width Contact Form */}
-        <section className="py-12 px-6 lg:px-12">
+        {/* Section 2: Single Full-width Contact Form */}
+<section className="py-12 px-6 lg:px-12">
+  <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.8 }}
+    viewport={{ once: true }}
+    className="max-w-4xl mx-auto"
+  >
+    <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 lg:p-12 shadow-2xl border border-white/30">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        viewport={{ once: true }}
+        className="text-center mb-8"
+      >
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">Send us a Message</h2>
+        <p className="text-gray-600">We'll get back to you as soon as possible</p>
+      </motion.div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
             viewport={{ once: true }}
-            className="max-w-4xl mx-auto"
           >
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 lg:p-12 shadow-2xl border border-white/20">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                viewport={{ once: true }}
-                className="text-center mb-8"
-              >
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">Send us a Message</h2>
-                <p className="text-gray-600">We'll get back to you as soon as possible</p>
-              </motion.div>
-
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 }}
-                    viewport={{ once: true }}
-                  >
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Your Name
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                      placeholder="Enter your name"
-                      required
-                    />
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 }}
-                    viewport={{ once: true }}
-                  >
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                      placeholder="Enter your email"
-                      required
-                    />
-                  </motion.div>
-                </div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                  viewport={{ once: true }}
-                >
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Subject
-                  </label>
-                  <input
-                    type="text"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                    placeholder="What's this about?"
-                    required
-                  />
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
-                  viewport={{ once: true }}
-                >
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Message
-                  </label>
-                  <textarea
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    rows={6}
-                    className="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none"
-                    placeholder="Tell us more about your inquiry..."
-                    required
-                  />
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7 }}
-                  viewport={{ once: true }}
-                  className="text-center"
-                >
-                  <motion.button
-                    type="submit"
-                    className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center mx-auto gap-2"
-                    whileHover={{ 
-                      scale: 1.05,
-                      boxShadow: "0 20px 40px rgba(99, 102, 241, 0.3)"
-                    }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Send className="w-5 h-5" />
-                    Send Message
-                  </motion.button>
-                </motion.div>
-              </form>
-            </div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Your Name
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:border-blue-500 focus:outline-none transition-colors duration-200 bg-white text-gray-900"
+              placeholder="Enter your name"
+              required
+            />
           </motion.div>
-        </section>
+
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            viewport={{ once: true }}
+          >
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Email Address
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:border-blue-500 focus:outline-none transition-colors duration-200 bg-white text-gray-900"
+              placeholder="Enter your email"
+              required
+            />
+          </motion.div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          viewport={{ once: true }}
+        >
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Subject
+          </label>
+          <input
+            type="text"
+            name="subject"
+            value={formData.subject}
+            onChange={handleChange}
+            className="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:border-blue-500 focus:outline-none transition-colors duration-200 bg-white text-gray-900"
+            placeholder="What's this about?"
+            required
+          />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Message
+          </label>
+          <textarea
+            name="message"
+            value={formData.message}
+            onChange={handleChange}
+            rows={6}
+            className="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:border-blue-500 focus:outline-none transition-colors duration-200 bg-white text-gray-900 resize-none"
+            placeholder="Tell us more about your inquiry..."
+            required
+          />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          viewport={{ once: true }}
+          className="text-center"
+        >
+          <motion.button
+            type="submit"
+            className="px-8 py-4 bg-gradient-to-r from-yellow-500 to-amber-500 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-shadow duration-300 flex items-center justify-center mx-auto gap-2"
+            whileHover={{ boxShadow: "0 20px 40px rgba(245, 158, 11, 0.3)" }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Send className="w-5 h-5" />
+            Send Message
+          </motion.button>
+        </motion.div>
+      </form>
+    </div>
+  </motion.div>
+</section>
 
         {/* Section 3: Four-part Contact Methods */}
         <section className="py-12 px-6 lg:px-12">
@@ -377,8 +387,8 @@ export default function Contact() {
               viewport={{ once: true }}
               className="text-center mb-12"
             >
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Other Ways to Reach Us</h2>
-              <div className="w-20 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full" />
+              <h2 className="text-3xl font-bold text-white mb-4">Other Ways to Reach Us</h2>
+              <div className="w-20 h-1 bg-gradient-to-r from-yellow-400 to-amber-500 mx-auto rounded-full" />
             </motion.div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -392,9 +402,9 @@ export default function Contact() {
                   viewport={{ once: true }}
                   whileHover={{ y: -5 }}
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${method.color} rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${method.color} rounded-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-300`} />
                   
-                  <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20 h-full group-hover:shadow-xl transition-all duration-300 text-center">
+                  <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/30 h-full group-hover:shadow-xl transition-all duration-300 text-center">
                     <motion.div
                       className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-r ${method.color} text-white mb-4`}
                       whileHover={{ 
@@ -440,7 +450,7 @@ export default function Contact() {
             viewport={{ once: true }}
             className="max-w-4xl mx-auto"
           >
-            <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-3xl p-8 lg:p-12 text-white text-center relative overflow-hidden">
+            <div className="bg-gradient-to-br from-yellow-500 via-amber-500 to-orange-500 rounded-3xl p-8 lg:p-12 text-white text-center relative overflow-hidden">
               {/* Background Elements */}
               <motion.div
                 className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full -translate-x-16 -translate-y-16"
@@ -489,7 +499,7 @@ export default function Contact() {
                     >
                       <feature.icon className="w-8 h-8 text-white mb-3 mx-auto" />
                       <h3 className="font-semibold mb-2">{feature.title}</h3>
-                      <p className="text-blue-100 text-sm">{feature.description}</p>
+                      <p className="text-yellow-100 text-sm">{feature.description}</p>
                     </motion.div>
                   ))}
                 </div>
@@ -499,13 +509,13 @@ export default function Contact() {
                   whileInView={{ opacity: 1 }}
                   transition={{ delay: 0.8 }}
                   viewport={{ once: true }}
-                  className="text-blue-100 text-lg mb-6"
+                  className="text-yellow-100 text-lg mb-6"
                 >
                   We're committed to providing the best support experience in the travel industry
                 </motion.p>
 
                 <motion.button
-                  className="px-6 py-3 bg-white text-blue-600 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="px-6 py-3 bg-white text-amber-700 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                   whileHover={{ 
                     scale: 1.05,
                     boxShadow: "0 20px 40px rgba(255,255,255,0.2)"
@@ -518,6 +528,34 @@ export default function Contact() {
             </div>
           </motion.div>
         </section>
+
+        {/* Footer */}
+        <motion.footer
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          viewport={{ once: true }}
+          className="text-center py-8 border-t border-white/20 mt-8"
+        >
+          <div className="flex flex-wrap justify-center items-center gap-4 mb-4">
+            {["Trusted by 2M+ Travelers", "Award Winning Service", "Global Coverage", "Best Price Guarantee"].map((text, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-yellow-300" />
+                <span className="text-sm text-blue-100">{text}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-blue-200 mb-4">
+            We're here to make travel accessible for everyone. Independent, transparent, and traveler-first.
+          </p>
+          <div className="flex flex-wrap justify-center items-center gap-4 text-xs text-blue-200/80">
+            <span>© 2024 Travelikeg</span>
+            <span className="w-1 h-1 bg-blue-300 rounded-full"></span>
+            <span>Privacy</span>
+            <span className="w-1 h-1 bg-blue-300 rounded-full"></span>
+            <span>Terms</span>
+          </div>
+        </motion.footer>
       </div>
     </div>
   );

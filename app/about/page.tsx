@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Users, Target, Award, Heart, Plane, Globe, Zap, Shield, Eye, Search, Scale } from 'lucide-react';
+import { Users, Target, Award, Heart, Plane, Globe, Zap, Shield, Eye, Search, Scale, Sparkles, Star } from 'lucide-react';
 import { useInView } from 'framer-motion';
 import { useRef } from 'react';
 
@@ -42,14 +42,14 @@ export default function About() {
   const containerRef = useRef(null);
   
   return (
-    <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen overflow-hidden">
-      {/* Animated Background Elements */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-600 to-blue-400 overflow-hidden">
+      {/* Animated Background Elements - Deep blue theme */}
       <div className="fixed inset-0 pointer-events-none">
         <motion.div
-          className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-200 rounded-full blur-3xl opacity-30"
+          className="absolute top-1/4 left-1/4 w-72 h-72 bg-white/10 rounded-full mix-blend-overlay blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
+            opacity: [0.1, 0.2, 0.1],
           }}
           transition={{
             duration: 8,
@@ -58,13 +58,25 @@ export default function About() {
           }}
         />
         <motion.div
-          className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-20"
+          className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-blue-300/20 rounded-full mix-blend-overlay blur-3xl"
           animate={{
             scale: [1.2, 1, 1.2],
-            opacity: [0.2, 0.4, 0.2],
+            opacity: [0.1, 0.3, 0.1],
           }}
           transition={{
             duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-300/10 rounded-full mix-blend-overlay blur-3xl"
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.1, 0.2, 0.1],
+          }}
+          transition={{
+            duration: 12,
             repeat: Infinity,
             ease: "easeInOut",
           }}
@@ -90,15 +102,15 @@ export default function About() {
                 className="mb-8"
               >
                 <motion.div
-                  className="w-16 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mb-6 rounded-full"
+                  className="w-16 h-1 bg-gradient-to-r from-yellow-400 to-amber-500 mb-6 rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: 64 }}
                   transition={{ delay: 0.5, duration: 0.8 }}
                 />
-                <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                <h1 className="text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
                   About
                   <motion.span 
-                    className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+                    className="block bg-gradient-to-r from-yellow-300 to-amber-300 bg-clip-text text-transparent"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
@@ -106,7 +118,7 @@ export default function About() {
                     Travelikeg
                   </motion.span>
                 </h1>
-                <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+                <p className="text-xl text-blue-100 mb-8 leading-relaxed">
                   At Travelikeg, we are a team of independent individuals who believe that everyone deserves access to better travel deals.
                 </p>
               </motion.div>
@@ -127,8 +139,8 @@ export default function About() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.8 + index * 0.1 }}
                   >
-                    <div className="text-2xl font-bold text-gray-900">{stat.number}</div>
-                    <div className="text-gray-600 text-sm">{stat.label}</div>
+                    <div className="text-2xl font-bold text-yellow-300">{stat.number}</div>
+                    <div className="text-blue-100 text-sm">{stat.label}</div>
                   </motion.div>
                 ))}
               </motion.div>
@@ -155,7 +167,7 @@ export default function About() {
                   ease: "linear",
                 }}
               >
-                <Globe className="w-full h-full text-blue-400 opacity-20" />
+                <Globe className="w-full h-full text-white/20" />
                 
                 {/* Floating Planes */}
                 {[0, 120, 240].map((rotation, index) => (
@@ -179,7 +191,7 @@ export default function About() {
                       whileHover={{ scale: 1.2 }}
                     >
                       <Plane 
-                        className="w-8 h-8 text-blue-500" 
+                        className="w-8 h-8 text-yellow-300" 
                         style={{ 
                           transform: `rotate(${90}deg)`,
                         }}
@@ -191,7 +203,7 @@ export default function About() {
 
               {/* Floating Elements */}
               <motion.div
-                className="absolute top-1/4 left-1/4 bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-white/20"
+                className="absolute top-1/4 left-1/4 bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-white/30"
                 animate={{
                   y: [0, -20, 0],
                 }}
@@ -201,11 +213,11 @@ export default function About() {
                   delay: 0.5,
                 }}
               >
-                <div className="text-sm font-semibold text-gray-700">Better Deals</div>
+                <div className="text-sm font-semibold text-gray-800">Better Deals</div>
               </motion.div>
 
               <motion.div
-                className="absolute bottom-1/4 right-1/4 bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-white/20"
+                className="absolute bottom-1/4 right-1/4 bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-white/30"
                 animate={{
                   y: [0, 20, 0],
                 }}
@@ -215,7 +227,7 @@ export default function About() {
                   delay: 1,
                 }}
               >
-                <div className="text-sm font-semibold text-gray-700">Travel Smarter</div>
+                <div className="text-sm font-semibold text-gray-800">Travel Smarter</div>
               </motion.div>
             </div>
           </motion.div>
@@ -237,10 +249,10 @@ export default function About() {
               viewport={{ once: true }}
               className="mb-12"
             >
-              <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+              <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
                 Our Mission
               </h2>
-              <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto mb-8 rounded-full" />
+              <div className="w-24 h-1 bg-gradient-to-r from-yellow-400 to-amber-500 mx-auto mb-8 rounded-full" />
             </motion.div>
 
             <motion.div
@@ -248,12 +260,12 @@ export default function About() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
               viewport={{ once: true }}
-              className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 lg:p-12 shadow-2xl border border-white/20"
+              className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 lg:p-12 shadow-2xl border border-white/30"
             >
-              <p className="text-xl lg:text-2xl text-gray-700 leading-relaxed mb-8">
+              <p className="text-xl lg:text-2xl text-gray-800 leading-relaxed mb-8">
                 "We created this platform to help people find affordable flights quickly, easily, and without stress."
               </p>
-              <p className="text-lg text-gray-600 leading-relaxed">
+              <p className="text-lg text-gray-700 leading-relaxed">
                 We know how frustrating it can be to search multiple websites just to compare prices. That’s why we work to simplify the process and bring the best available options together in one place. We are not a large corporation. We are independent people who genuinely want to help others save money on travel. Whether you’re visiting family, going on vacation, or traveling for business, our goal is to help you book smarter and pay less.
               </p>
             </motion.div>
@@ -273,17 +285,17 @@ export default function About() {
               ].map((feature, index) => (
                 <motion.div
                   key={feature.title}
-                  className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20"
+                  className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/30 shadow-lg"
                   whileHover={{ 
                     scale: 1.05,
-                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
                   }}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.8 + index * 0.1 }}
                   viewport={{ once: true }}
                 >
-                  <feature.icon className="w-12 h-12 text-blue-500 mx-auto mb-4" />
+                  <feature.icon className="w-12 h-12 text-blue-600 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
                   <p className="text-gray-600 text-sm">{feature.desc}</p>
                 </motion.div>
@@ -302,10 +314,10 @@ export default function About() {
               viewport={{ once: true }}
               className="text-center mb-12"
             >
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+              <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
                 What We Believe In
               </h2>
-              <div className="w-20 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full" />
+              <div className="w-20 h-1 bg-gradient-to-r from-yellow-400 to-amber-500 mx-auto rounded-full" />
             </motion.div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -320,9 +332,9 @@ export default function About() {
                   whileHover={{ y: -5 }}
                 >
                   {/* Background Gradient on Hover */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${value.color} rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${value.color} rounded-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-300`} />
                   
-                  <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20 h-full group-hover:shadow-xl transition-all duration-300">
+                  <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/30 h-full group-hover:shadow-xl transition-all duration-300">
                     <motion.div
                       className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-r ${value.color} text-white mb-4`}
                       whileHover={{ 
@@ -337,7 +349,7 @@ export default function About() {
                       {value.name}
                     </h3>
                     
-                    <p className="text-gray-600 text-sm leading-relaxed">
+                    <p className="text-gray-700 text-sm leading-relaxed">
                       {value.description}
                     </p>
 
@@ -365,7 +377,7 @@ export default function About() {
             viewport={{ once: true }}
             className="max-w-6xl mx-auto w-full"
           >
-            <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-3xl p-8 lg:p-16 text-white relative overflow-hidden">
+            <div className="bg-gradient-to-br from-yellow-500 via-amber-500 to-orange-500 rounded-3xl p-8 lg:p-16 text-white relative overflow-hidden">
               {/* Animated background elements */}
               <motion.div
                 className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"
@@ -461,7 +473,7 @@ export default function About() {
                   className="text-center mt-12"
                 >
                   <motion.button
-                    className="px-8 py-4 bg-white text-blue-600 rounded-2xl font-semibold shadow-lg"
+                    className="px-8 py-4 bg-white text-blue-700 rounded-2xl font-semibold shadow-lg"
                     whileHover={{ 
                       scale: 1.05,
                       boxShadow: "0 20px 40px rgba(255,255,255,0.2)"
@@ -475,6 +487,34 @@ export default function About() {
             </div>
           </motion.div>
         </section>
+
+        {/* Footer (optional - could add similar to flights page if needed) */}
+        <motion.footer
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          viewport={{ once: true }}
+          className="text-center py-8 border-t border-white/20 mt-8"
+        >
+          <div className="flex flex-wrap justify-center items-center gap-4 mb-4">
+            {["Trusted by 2M+ Travelers", "Award Winning Service", "Global Coverage", "Best Price Guarantee"].map((text, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-yellow-300" />
+                <span className="text-sm text-blue-100">{text}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-blue-200 mb-4">
+            We're here to make travel accessible for everyone. Independent, transparent, and traveler-first.
+          </p>
+          <div className="flex flex-wrap justify-center items-center gap-4 text-xs text-blue-200/80">
+            <span>© 2024 Travelikeg</span>
+            <span className="w-1 h-1 bg-blue-300 rounded-full"></span>
+            <span>Privacy</span>
+            <span className="w-1 h-1 bg-blue-300 rounded-full"></span>
+            <span>Terms</span>
+          </div>
+        </motion.footer>
       </div>
     </div>
   );
