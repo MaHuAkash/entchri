@@ -1,12 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import CarSearchForm from '@/components/CarSearchForm';
-import { Shield, DollarSign, Globe, ThumbsUp, Car, Star } from 'lucide-react';
+import { Shield, DollarSign, ThumbsUp, Car } from 'lucide-react';
 
 export default function CarsPage() {
-  const [searchCompleted, setSearchCompleted] = useState(false);
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       {/* Hero Section */}
@@ -102,38 +99,6 @@ export default function CarsPage() {
                   on most bookings.
                 </p>
               </div>
-            </div>
-          </div>
-
-          {/* Popular Destinations */}
-          <div className="mb-16">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 text-center mb-8">
-              Popular Rental Destinations
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { name: 'Los Angeles', code: 'LAX', country: 'USA' },
-                { name: 'London', code: 'LHR', country: 'UK' },
-                { name: 'Paris', code: 'CDG', country: 'France' },
-                { name: 'Dubai', code: 'DXB', country: 'UAE' },
-                { name: 'New York', code: 'JFK', country: 'USA' },
-                { name: 'Tokyo', code: 'NRT', country: 'Japan' },
-                { name: 'Sydney', code: 'SYD', country: 'Australia' },
-                { name: 'Rome', code: 'FCO', country: 'Italy' },
-              ].map((city) => (
-                <div
-                  key={city.code}
-                  className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer hover:border-blue-300"
-                  onClick={() => {
-                    // You could implement quick search for these cities
-                    console.log(`Quick search for ${city.name}`);
-                  }}
-                >
-                  <div className="text-lg font-semibold text-gray-800">{city.name}</div>
-                  <div className="text-sm text-gray-500">{city.country}</div>
-                  <div className="text-xs text-blue-600 font-medium mt-1">{city.code}</div>
-                </div>
-              ))}
             </div>
           </div>
 
